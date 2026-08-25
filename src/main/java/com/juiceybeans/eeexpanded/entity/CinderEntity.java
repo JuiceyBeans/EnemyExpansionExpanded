@@ -34,6 +34,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +62,10 @@ public class CinderEntity extends Monster implements GeoEntity {
 
     public CinderEntity(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
+        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.LAVA, 8.0F);
+        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 0.0F);
+        this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, 0.0F);
         this.xpReward = 15;
         this.setPersistenceRequired();
     }
@@ -137,8 +142,9 @@ public class CinderEntity extends Monster implements GeoEntity {
         return SoundEvents.BLAZE_DEATH;
     }
 
-    private boolean isDamageFromType(DamageSource source, ResourceKey<DamageType> typeKey) {
-        return source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getOrThrow(typeKey);
+    @Override
+    public boolean isSensitiveToWater() {
+        return true;
     }
 
     @Override
