@@ -153,14 +153,18 @@ public class CinderEntity extends Monster implements GeoEntity {
     public boolean hurt(DamageSource source, float amount) {
         if (this.level().isClientSide()) return false;
 
-        if (source.getEntity() instanceof Player player && player.isCreative()) return false;
+        if (source.getEntity() instanceof Player player && player.isCreative()) return super.hurt(source, amount);
         if (source.getEntity() instanceof AbstractArrow) return false;
-        if (isDamageFromType(source, DamageTypes.EXPLOSION)) return false;
-        if (isDamageFromType(source, DamageTypes.FALL)) return false;
-        if (isDamageFromType(source, DamageTypes.CACTUS)) return false;
-        if (isDamageFromType(source, DamageTypes.FALLING_ANVIL)) return false;
-        if (isDamageFromType(source, DamageTypes.WITHER)) return false;
-        if (isDamageFromType(source, DamageTypes.WITHER_SKULL)) return false;
+        if (source == this.damageSources().fall()) return false;
+        if (source == this.damageSources().lava()) return false;
+        if (source == this.damageSources().drown()) return false;
+        if (source == this.damageSources().fall()) return false;
+        if (source == this.damageSources().cactus()) return false;
+        if (source == this.damageSources().wither()) return false;
+        if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.WITHER_SKULL)) return false; // if there's a better way to do this LET ME KNOW!!
+        if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.FALLING_ANVIL)) return false;
 
         if (source.getEntity() instanceof Player) {
             setHurtStage(1);

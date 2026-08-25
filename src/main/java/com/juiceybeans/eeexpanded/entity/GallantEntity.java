@@ -168,6 +168,15 @@ public class GallantEntity extends Monster implements GeoEntity {
     public boolean hurt(DamageSource source, float amount) {
         if (this.level().isClientSide()) return false;
 
+        if (source.getEntity() instanceof Player player && player.isCreative()) return super.hurt(source, amount);
+        if (source == this.damageSources().lava()) return false;
+        if (source == this.damageSources().drown()) return false;
+        if (source == this.damageSources().fall()) return false;
+        if (source == this.damageSources().cactus()) return false;
+        if (source == this.damageSources().wither()) return false;
+        if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.WITHER_SKULL)) return false; // if there's a better way to do this LET ME KNOW!!
+
         // raise shield
         if (getAttackStage() == 0 && getHurtStage() == 0
                 && (source.getEntity() instanceof Player || source.getEntity() instanceof Arrow)
@@ -184,14 +193,6 @@ public class GallantEntity extends Monster implements GeoEntity {
             this.hurtStageStart = this.level().getGameTime();
             this.isAttackerInWater = source.getEntity().isInWater();
         }
-
-        if (source == this.damageSources().lava()) return false;
-        if (source == this.damageSources().drown()) return false;
-        if (source == this.damageSources().fall()) return false;
-        if (source == this.damageSources().cactus()) return false;
-        if (source == this.damageSources().wither()) return false;
-        if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.WITHER_SKULL)) return false; // if there's a better way to do this LET ME KNOW!!
 
         return super.hurt(source, amount);
     }
