@@ -28,29 +28,23 @@ public class EEEntities {
     public static final DeferredObject<EntityType<GallantEntity>> GALLANT = entity("gallant",
             EntityType.Builder.of(GallantEntity::new, MobCategory.MONSTER)
                     .setShouldReceiveVelocityUpdates(true)
-                    .setTrackingRange(64)
-                    .setUpdateInterval(3)
                     .sized(0.8F, 1.95F)
     );
     public static final DeferredObject<EntityType<CinderEntity>> CINDER = entity("cinder",
             EntityType.Builder.of(CinderEntity::new, MobCategory.MONSTER)
                     .setShouldReceiveVelocityUpdates(true)
-                    .setTrackingRange(64)
-                    .setUpdateInterval(3)
                     .sized(0.6F, 1.8F)
     );
 
     public static final DeferredObject<EntityType<GallantSwingsEntity>> GALLANT_SWINGS = entity("gallant_swings",
             EntityType.Builder.<GallantSwingsEntity>of(GallantSwingsEntity::new, MobCategory.MISC)
                     .setShouldReceiveVelocityUpdates(true)
-                    .setTrackingRange(64)
                     .setUpdateInterval(1)
                     .sized(0.5F, 0.5F)
     );
     public static final DeferredObject<EntityType<CinderFireballEntity>> CINDER_FIREBALL = entity("cinder_fireball",
             EntityType.Builder.<CinderFireballEntity>of(CinderFireballEntity::new, MobCategory.MISC)
                     .setShouldReceiveVelocityUpdates(true)
-                    .setTrackingRange(64)
                     .setUpdateInterval(1)
                     .sized(0.5F, 0.5F)
     );
