@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:apple",
+    "minecraft:emerald",
+    "minecraft:amethyst_shard",
+    "minecraft:lapis_lazuli",
+    "minecraft:raw_copper",
+    "minecraft:raw_gold",
+    "minecraft:raw_iron",
+    "minecraft:diamond",
+    "minecraft:ender_pearl",
+    
+    "minecraft:chorus_fruit",
+    "minecraft:ghast_tear",
+    "minecraft:experience_bottle",
+    "minecraft:trident",
+    "minecraft:ender_eye",
+    "minecraft:golden_apple"
+  ]
+}

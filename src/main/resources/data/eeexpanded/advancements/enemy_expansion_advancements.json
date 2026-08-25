@@ -1,0 +1,23 @@
+{
+  "display": {
+    "background": "minecraft:textures/block/stone.png",
+    "icon": {
+      "item": "enemyexpansion:meathead_armor_helmet"
+    },
+    "title": {
+      "translate": "advancements.enemy_expansion_advancements.title"
+    },
+    "description": {
+      "translate": "advancements.enemy_expansion_advancements.descr"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "enemy_expansion_advancements": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

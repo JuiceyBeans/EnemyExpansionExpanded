@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:iron_helmet"
+    },
+    "title": {
+      "translate": "advancements.enter_the_gallant.title"
+    },
+    "description": {
+      "translate": "advancements.enter_the_gallant.descr"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "enter_the_gallant": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "eeexpanded:enemy_expansion_advancements"
+}

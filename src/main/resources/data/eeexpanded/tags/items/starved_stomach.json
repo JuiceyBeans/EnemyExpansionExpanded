@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:rotten_flesh",
+    "minecraft:bone",
+    "minecraft:bone_meal",
+    "minecraft:sand",
+    "minecraft:sandstone",
+    "minecraft:cactus",
+    "minecraft:spyglass",
+    "minecraft:lapis_lazuli",
+    "minecraft:raw_copper",
+    "minecraft:raw_gold",
+    "minecraft:raw_iron",
+    "minecraft:diamond",
+    "minecraft:ender_pearl"
+  ]
+}
+
+
+

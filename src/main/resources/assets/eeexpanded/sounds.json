@@ -1,0 +1,11 @@
+{
+  "silentstep": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "eeexpanded:silentstep",
+        "stream": false
+      }
+    ]
+  }
+}
