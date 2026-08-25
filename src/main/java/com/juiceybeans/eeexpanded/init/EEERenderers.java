@@ -2,6 +2,7 @@ package com.juiceybeans.eeexpanded.init;
 
 import com.google.common.collect.Maps;
 import com.juiceybeans.eeexpanded.client.renderer.CinderRenderer;
+import com.juiceybeans.eeexpanded.client.renderer.EyestalkerRenderer;
 import com.juiceybeans.eeexpanded.client.renderer.GallantRenderer;
 import com.juiceybeans.eeexpanded.core.DeferredObject;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -19,6 +20,7 @@ public class EEERenderers {
     public static void registerRenderers() {
         registerEntityRender(EEEntities.GALLANT, GallantRenderer::new);
         registerEntityRender(EEEntities.CINDER, CinderRenderer::new);
+        registerEntityRender(EEEntities.EYESTALKER, EyestalkerRenderer::new);
     }
 
     public static Map<DeferredObject<EntityType<? extends Entity>>, EntityRendererProvider<?>> getRenderers() {

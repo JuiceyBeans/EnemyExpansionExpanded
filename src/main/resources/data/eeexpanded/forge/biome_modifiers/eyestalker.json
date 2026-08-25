@@ -1,0 +1,20 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": [
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    "minecraft:warped_forest",
+    "minecraft:the_end",
+    "minecraft:small_end_islands",
+    "minecraft:end_midlands",
+    "minecraft:end_highlands",
+    "minecraft:end_barrens"
+  ],
+  "spawners": {
+    "type": "eeexpanded:eyestalker",
+    "weight": 1,
+    "minCount": 1,
+    "maxCount": 1
+  },
+  "category": "monster"
+}
