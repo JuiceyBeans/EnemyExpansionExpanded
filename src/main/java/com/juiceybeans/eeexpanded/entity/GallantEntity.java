@@ -82,7 +82,6 @@ public class GallantEntity extends Monster implements GeoEntity {
                 .add(Attributes.ATTACK_DAMAGE, 8.0D)
                 .add(Attributes.ATTACK_KNOCKBACK, 3.5D)
                 .add(Attributes.MOVEMENT_SPEED, 0.2D)
-                .add(Attributes.FOLLOW_RANGE, 16.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.6D);
     }
 

@@ -75,8 +75,7 @@ public class CinderEntity extends Monster implements GeoEntity {
                 .add(Attributes.ARMOR, 16.0D)
                 .add(Attributes.ATTACK_DAMAGE, 4.0D)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.28D)
-                .add(Attributes.FOLLOW_RANGE, 16.0D);
+                .add(Attributes.MOVEMENT_SPEED, 0.28D);
     }
 
     @Override
