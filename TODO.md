@@ -1,0 +1,11 @@
+- [x] Cinder
+- [ ] Dragonfly
+- [ ] Eyestalker
+- [x] Gallant
+- [ ] Guardsman
+- [ ] Kelpies
+- [ ] Propeller
+
+- [x] Gallant goes into strike animation
+- [x] Test mob spawns
+- [ ] Gallant aggro persistence on world reload
