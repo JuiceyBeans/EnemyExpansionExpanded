@@ -1,6 +1,7 @@
 package com.juiceybeans.eeexpanded.entity;
 
 import com.juiceybeans.eeexpanded.entity.projectile.CinderFireballEntity;
+import com.juiceybeans.eeexpanded.entity.projectile.GallantSwingsEntity;
 import com.juiceybeans.eeexpanded.init.EEEntities;
 import com.juiceybeans.eeexpanded.init.EESoundEvents;
 import net.minecraft.core.BlockPos;
@@ -154,6 +155,7 @@ public class CinderEntity extends Monster implements GeoEntity {
         if (this.level().isClientSide()) return false;
 
         if (source.getEntity() instanceof Player player && player.isCreative()) return super.hurt(source, amount);
+        if (source.getEntity() instanceof CinderFireballEntity) return false;
         if (source.getEntity() instanceof AbstractArrow) return false;
         if (source == this.damageSources().fall()) return false;
         if (source == this.damageSources().lava()) return false;
@@ -212,6 +214,7 @@ public class CinderEntity extends Monster implements GeoEntity {
             projectile.setKnockback(1);
             projectile.setNoGravity(true);
             projectile.setPos(this.getX(), this.getEyeY() - 0.1D, this.getZ());
+            projectile.setOwner(this);
 
             projectile.shoot(this.getLookAngle().x, this.getLookAngle().y, this.getLookAngle().z, 1.0f, 1.0f);
             level().addFreshEntity(projectile);

@@ -169,6 +169,7 @@ public class GallantEntity extends Monster implements GeoEntity {
         if (this.level().isClientSide()) return false;
 
         if (source.getEntity() instanceof Player player && player.isCreative()) return super.hurt(source, amount);
+        if (source.getEntity() instanceof GallantSwingsEntity swings && swings.getOwner() == this) return false;
         if (source == this.damageSources().lava()) return false;
         if (source == this.damageSources().drown()) return false;
         if (source == this.damageSources().fall()) return false;
@@ -263,6 +264,7 @@ public class GallantEntity extends Monster implements GeoEntity {
             projectile.setKnockback(1);
             projectile.setNoGravity(true);
             projectile.setPos(this.getX(), this.getEyeY() - 0.1D, this.getZ());
+            projectile.setOwner(this);
 
             float inaccuracy = 1.0F + level().random.nextFloat() * (spreadRange - 1.0F);
 
