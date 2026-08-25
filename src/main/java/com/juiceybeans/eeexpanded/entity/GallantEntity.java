@@ -155,10 +155,6 @@ public class GallantEntity extends Monster implements GeoEntity {
         return SoundEvents.IRON_GOLEM_DEATH;
     }
 
-    private boolean isDamageFromType(DamageSource source, ResourceKey<DamageType> typeKey) {
-        return source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getOrThrow(typeKey);
-    }
-
     @Override
     public boolean doHurtTarget(Entity entity) {
         if (getAttackStage() == 0) {
@@ -189,11 +185,13 @@ public class GallantEntity extends Monster implements GeoEntity {
             this.isAttackerInWater = source.getEntity().isInWater();
         }
 
-        if (isDamageFromType(source, DamageTypes.LAVA)) return false;
-        if (isDamageFromType(source, DamageTypes.DROWN)) return false;
-        if (isDamageFromType(source, DamageTypes.FALL)) return false;
-        if (isDamageFromType(source, DamageTypes.CACTUS)) return false;
-        if (isDamageFromType(source, DamageTypes.WITHER_SKULL)) return false;
+        if (source == this.damageSources().lava()) return false;
+        if (source == this.damageSources().drown()) return false;
+        if (source == this.damageSources().fall()) return false;
+        if (source == this.damageSources().cactus()) return false;
+        if (source == this.damageSources().wither()) return false;
+        if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(DamageTypes.WITHER_SKULL)) return false; // if there's a better way to do this LET ME KNOW!!
 
         return super.hurt(source, amount);
     }
