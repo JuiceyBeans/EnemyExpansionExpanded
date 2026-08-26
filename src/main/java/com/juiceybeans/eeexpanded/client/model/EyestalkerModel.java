@@ -7,7 +7,7 @@ import software.bernie.geckolib.model.GeoModel;
 
 public class EyestalkerModel extends GeoModel<EyestalkerEntity> {
     @Override
-    public ResourceLocation getModelResource(EyestalkerEntity gallantEntity) {
+    public ResourceLocation getModelResource(EyestalkerEntity eyestalkerEntity) {
         return EEExpanded.id("geo/entity/eyestalker.geo.json");
     }
 
