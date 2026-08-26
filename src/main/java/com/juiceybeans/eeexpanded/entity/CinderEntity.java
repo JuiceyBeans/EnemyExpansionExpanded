@@ -1,9 +1,8 @@
 package com.juiceybeans.eeexpanded.entity;
 
 import com.juiceybeans.eeexpanded.entity.projectile.CinderFireballEntity;
-import com.juiceybeans.eeexpanded.entity.projectile.GallantSwingsEntity;
 import com.juiceybeans.eeexpanded.init.EEEntities;
-import com.juiceybeans.eeexpanded.init.EESoundEvents;
+import com.juiceybeans.eeexpanded.init.EEESoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -12,11 +11,9 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -59,6 +56,9 @@ public class CinderEntity extends Monster implements GeoEntity {
 
     private long hurtStageStart = 0;
     private long attackStageStart = 0;
+
+    private static final long FIREBALL_DELAY = 60;
+    private static final long ATTACK_DELAY = 10;
 
     public CinderEntity(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
@@ -129,7 +129,7 @@ public class CinderEntity extends Monster implements GeoEntity {
 
     @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
-        this.playSound(EESoundEvents.SILENT_STEP, 0.15F, 1.0F);
+        this.playSound(EEESoundEvents.SILENT_STEP, 0.15F, 1.0F);
     }
 
     @Override
@@ -209,11 +209,11 @@ public class CinderEntity extends Monster implements GeoEntity {
         this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 60, 0, false, false));
 
         if (level().getBlockState(new BlockPos(this.getBlockX(), this.getBlockY() - 1, this.getBlockZ())).is(Blocks.LAVA)) {
-            if (level().getRandom().nextInt() > 0.5D) this.setDeltaMovement(new Vec3(-0.6D, 3.0D, -0.6D));
+            if (getRandom().nextInt() > 0.5D) this.setDeltaMovement(new Vec3(-0.6D, 3.0D, -0.6D));
             else this.setDeltaMovement(new Vec3(0.6D, 3.0D, 0.6D));
         }
 
-        if (getHurtStage() == 1 && this.level().getGameTime() >= hurtStageStart + 60) {
+        if (getHurtStage() == 1 && this.level().getGameTime() >= hurtStageStart + FIREBALL_DELAY) {
             CinderFireballEntity projectile = new CinderFireballEntity(EEEntities.CINDER_FIREBALL.get(), level());
 
             projectile.setBaseDamage(5.0f);
@@ -231,7 +231,7 @@ public class CinderEntity extends Monster implements GeoEntity {
         }
 
         // reset attack anim
-        if (getAttackStage() == 1 && this.level().getGameTime() >= attackStageStart + 10) {
+        if (getAttackStage() == 1 && this.level().getGameTime() >= attackStageStart + ATTACK_DELAY) {
             setAttackStage(0);
             this.attackStageStart = 0;
         }
