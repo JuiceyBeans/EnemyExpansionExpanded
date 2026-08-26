@@ -27,8 +27,10 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Fireball;
 import net.minecraft.world.entity.projectile.SmallFireball;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -81,7 +83,7 @@ public class CinderEntity extends Monster implements GeoEntity {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0D)
                 .add(Attributes.ARMOR, 16.0D)
-                .add(Attributes.ATTACK_DAMAGE, 4.0D)
+                .add(Attributes.ATTACK_DAMAGE, 6.0D)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.28D);
     }
@@ -135,6 +137,12 @@ public class CinderEntity extends Monster implements GeoEntity {
     }
 
     @Override
+    public double getMeleeAttackRangeSqr(LivingEntity entity) {
+        return (getAttackStage() >= 1 || getHurtStage() == 1) ? super.getMeleeAttackRangeSqr(entity) * 2 :
+                super.getMeleeAttackRangeSqr(entity);
+    }
+
+    @Override
     protected SoundEvent getHurtSound(DamageSource damageSource) {
         return SoundEvents.BLAZE_HURT;
     }
@@ -154,8 +162,24 @@ public class CinderEntity extends Monster implements GeoEntity {
         if (getAttackStage() == 0) {
             setAttackStage(1);
             this.attackStageStart = this.level().getGameTime();
-            return true;
+
+            if (entity instanceof Player) {
+                Player player = (Player) entity;
+                this.maybeDisableShield(player, player.isUsingItem() ? player.getUseItem() : ItemStack.EMPTY);
+            }
+
+            return super.doHurtTarget(entity);
         } else return false;
+    }
+
+    private void maybeDisableShield(Player player, ItemStack playerItemStack) {
+        if (!playerItemStack.isEmpty() && playerItemStack.is(Items.SHIELD)) {
+            float f = 0.25F + (float) EnchantmentHelper.getBlockEfficiency(this) * 0.05F;
+            if (this.random.nextFloat() < f) {
+                player.getCooldowns().addCooldown(Items.SHIELD, 100);
+                this.level().broadcastEntityEvent(player, (byte) 30);
+            }
+        }
     }
 
     @Override
@@ -220,11 +244,16 @@ public class CinderEntity extends Monster implements GeoEntity {
         }
 
         if (getHurtStage() == 1 && this.level().getGameTime() >= hurtStageStart + FIREBALL_DELAY) {
-            Fireball projectile = new SmallFireball(EntityType.SMALL_FIREBALL, level());
+            var target = getTarget() != null ? getTarget() : getLastAttacker();
 
-            projectile.setNoGravity(true);
-            projectile.setPos(this.getX(), this.getEyeY() - 0.1D, this.getZ());
-            projectile.shoot(this.getLookAngle().x, this.getLookAngle().y, this.getLookAngle().z, 1.0f, 1.0f);
+            SmallFireball projectile = new SmallFireball(
+                    level(),
+                    this,
+                    target.getX() - this.getX(),
+                    target.getEyeY() - this.getY(0.5),
+                    target.getZ() - this.getZ());
+
+            projectile.setPos(projectile.getX(), getY(0.5), projectile.getZ());
             level().addFreshEntity(projectile);
 
             this.playSound(SoundEvents.FIRECHARGE_USE);
