@@ -196,9 +196,9 @@ public class EyestalkerEntity extends Monster implements GeoEntity, NeutralMob {
 
                 Vec3 forwardVector = lookVector.normalize();
 
-                double xMult = Mth.nextDouble(this.level().getRandom(), 1.25, 2.0);
-                double yMult = Mth.nextDouble(this.level().getRandom(), 0.3, 0.6);
-                double zMult = Mth.nextDouble(this.level().getRandom(), 1.25, 2.0);
+                double xMult = Mth.nextDouble(this.getRandom(), 1.25, 2.0);
+                double yMult = Mth.nextDouble(this.getRandom(), 0.3, 0.6);
+                double zMult = Mth.nextDouble(this.getRandom(), 1.25, 2.0);
 
                 this.setDeltaMovement(forwardVector.x * xMult, 0.3 * yMult, forwardVector.z * zMult);
             }
