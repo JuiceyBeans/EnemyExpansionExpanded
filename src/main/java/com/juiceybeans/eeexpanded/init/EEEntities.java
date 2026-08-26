@@ -4,6 +4,7 @@ import com.juiceybeans.eeexpanded.EEExpanded;
 import com.juiceybeans.eeexpanded.core.DeferredObject;
 import com.juiceybeans.eeexpanded.core.RegisterFunction;
 import com.juiceybeans.eeexpanded.entity.CinderEntity;
+import com.juiceybeans.eeexpanded.entity.DragonflyEntity;
 import com.juiceybeans.eeexpanded.entity.EyestalkerEntity;
 import com.juiceybeans.eeexpanded.entity.GallantEntity;
 import com.juiceybeans.eeexpanded.entity.projectile.CinderFireballEntity;
@@ -41,7 +42,13 @@ public class EEEntities {
                     .setShouldReceiveVelocityUpdates(true)
                     .sized(1.2F, 2.95F)
     );
+    public static final DeferredObject<EntityType<DragonflyEntity>> DRAGONFLY = entity("dragonfly",
+            EntityType.Builder.of(DragonflyEntity::new, MobCategory.MONSTER)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .sized(0.8F, 1.95F)
+    );
 
+    // projectiles
     public static final DeferredObject<EntityType<GallantSwingsEntity>> GALLANT_SWINGS = entity("gallant_swings",
             EntityType.Builder.<GallantSwingsEntity>of(GallantSwingsEntity::new, MobCategory.MISC)
                     .setShouldReceiveVelocityUpdates(true)
@@ -75,6 +82,7 @@ public class EEEntities {
         consumer.accept(GALLANT.get(), GallantEntity.createAttributes().build());
         consumer.accept(CINDER.get(), CinderEntity.createAttributes().build());
         consumer.accept(EYESTALKER.get(), EyestalkerEntity.createAttributes().build());
+        consumer.accept(DRAGONFLY.get(), DragonflyEntity.createAttributes().build());
     }
 
     public static Map<String, DeferredObject<EntityType<? extends Entity>>> getEntityTypes() {

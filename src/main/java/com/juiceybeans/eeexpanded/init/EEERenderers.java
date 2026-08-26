@@ -2,6 +2,7 @@ package com.juiceybeans.eeexpanded.init;
 
 import com.google.common.collect.Maps;
 import com.juiceybeans.eeexpanded.client.renderer.CinderRenderer;
+import com.juiceybeans.eeexpanded.client.renderer.DragonflyRenderer;
 import com.juiceybeans.eeexpanded.client.renderer.EyestalkerRenderer;
 import com.juiceybeans.eeexpanded.client.renderer.GallantRenderer;
 import com.juiceybeans.eeexpanded.core.DeferredObject;
@@ -21,6 +22,7 @@ public class EEERenderers {
         registerEntityRender(EEEntities.GALLANT, GallantRenderer::new);
         registerEntityRender(EEEntities.CINDER, CinderRenderer::new);
         registerEntityRender(EEEntities.EYESTALKER, EyestalkerRenderer::new);
+        registerEntityRender(EEEntities.DRAGONFLY, DragonflyRenderer::new);
     }
 
     public static Map<DeferredObject<EntityType<? extends Entity>>, EntityRendererProvider<?>> getRenderers() {

@@ -1,0 +1,14 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": [
+    "minecraft:plains",
+    "minecraft:swamp"
+  ],
+  "spawners": {
+    "type": "eeexpanded:dragonfly",
+    "weight": 35,
+    "minCount": 1,
+    "maxCount": 5
+  },
+  "category": "monster"
+}

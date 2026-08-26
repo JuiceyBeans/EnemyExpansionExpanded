@@ -26,6 +26,8 @@ public class EEEItems {
             238848, 11132);
     public static final DeferredObject<Item> EYESTALKER_SPAWN_EGG = spawnEgg("eyestalker_spawn_egg", EEEntities.EYESTALKER.get(),
             15985632, 9788045);
+    public static final DeferredObject<Item> DRAGONFLY_SPAWN_EGG = spawnEgg("dragonfly_spawn_egg", EEEntities.DRAGONFLY.get(),
+            10117792, 5843863);
 
     public static void register(RegisterFunction<Item> function) {
         items.forEach(((id, item) ->

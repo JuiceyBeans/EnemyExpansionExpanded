@@ -2,6 +2,8 @@ package com.juiceybeans.eeexpanded.event;
 
 import com.juiceybeans.eeexpanded.EEExpanded;
 import com.juiceybeans.eeexpanded.client.model.CinderModel;
+import com.juiceybeans.eeexpanded.client.model.DragonflyModel;
+import com.juiceybeans.eeexpanded.client.model.EyestalkerModel;
 import com.juiceybeans.eeexpanded.client.model.GallantModel;
 import com.juiceybeans.eeexpanded.init.EEEntities;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -21,6 +23,12 @@ public class ClientEvents {
         );
         event.registerEntityRenderer(EEEntities.CINDER.get(), (EntityRendererProvider.Context context) ->
                 new GeoEntityRenderer<>(context, new CinderModel())
+        );
+        event.registerEntityRenderer(EEEntities.EYESTALKER.get(), (EntityRendererProvider.Context context) ->
+                new GeoEntityRenderer<>(context, new EyestalkerModel())
+        );
+        event.registerEntityRenderer(EEEntities.DRAGONFLY.get(), (EntityRendererProvider.Context context) ->
+                new GeoEntityRenderer<>(context, new DragonflyModel())
         );
 
         event.registerEntityRenderer(EEEntities.GALLANT_SWINGS.get(), ThrownItemRenderer::new);
