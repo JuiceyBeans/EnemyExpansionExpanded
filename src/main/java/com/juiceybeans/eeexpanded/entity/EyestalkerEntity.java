@@ -28,6 +28,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -41,16 +42,17 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.UUID;
 
 public class EyestalkerEntity extends Monster implements GeoEntity, NeutralMob {
+
     private static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("attack");
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    private static final EntityDataAccessor<Integer> HURT_STAGE =
-            SynchedEntityData.defineId(EyestalkerEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> ATTACK_STAGE =
-            SynchedEntityData.defineId(EyestalkerEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> HURT_STAGE = SynchedEntityData.defineId(EyestalkerEntity.class,
+            EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> ATTACK_STAGE = SynchedEntityData.defineId(EyestalkerEntity.class,
+            EntityDataSerializers.INT);
 
     private long hurtStageStart = 0;
     private long attackStageStart = 0;
@@ -219,7 +221,7 @@ public class EyestalkerEntity extends Monster implements GeoEntity, NeutralMob {
     @Override
     public void aiStep() {
         if (!this.level().isClientSide) {
-            this.updatePersistentAnger((ServerLevel)this.level(), true);
+            this.updatePersistentAnger((ServerLevel) this.level(), true);
         }
         super.aiStep();
     }

@@ -1,6 +1,7 @@
 package com.juiceybeans.eeexpanded.entity;
 
 import com.juiceybeans.eeexpanded.init.EEESoundEvents;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -43,18 +45,18 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.UUID;
 
 public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
+
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    private static final EntityDataAccessor<Integer> HURT_STAGE =
-            SynchedEntityData.defineId(DragonflyEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> HURT_STAGE = SynchedEntityData.defineId(DragonflyEntity.class,
+            EntityDataSerializers.INT);
 
     private long hurtStageStart = 0;
 
@@ -109,6 +111,7 @@ public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
         super.registerGoals();
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0D, true));
         this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 0.8D) {
+
             @Override
             protected @Nullable Vec3 getPosition() {
                 RandomSource random = DragonflyEntity.this.getRandom();
@@ -123,6 +126,7 @@ public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
 
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false) {
+
             @Override
             public boolean canUse() {
                 return (super.canUse() && level().isNight());
@@ -188,8 +192,7 @@ public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
             this.setDeltaMovement(new Vec3(
                     Math.sin(Math.toRadians(attacker.getYRot() + 180.0F)) * 1.3D,
                     -0.2D,
-                    Math.cos(Math.toRadians(attacker.getYRot() + 180.0F)) * 1.3D)
-            );
+                    Math.cos(Math.toRadians(attacker.getYRot() + 180.0F)) * 1.3D));
         }
 
         setHurtStage(1);
@@ -210,8 +213,7 @@ public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
             this.setDeltaMovement(new Vec3(
                     Math.sin(Math.toRadians(this.getYRot() + Mth.nextDouble(getRandom(), 90.0, 270.0))) * 0.7D,
                     0.0D,
-                    Math.cos(Math.toRadians(this.getYRot())) * 0.7D)
-            );
+                    Math.cos(Math.toRadians(this.getYRot())) * 0.7D));
         }
 
         if (getHurtStage() == 1 && thisTick >= hurtStageStart + FIRST_DODGE_DELAY) {
@@ -219,8 +221,7 @@ public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
                 this.setDeltaMovement(new Vec3(
                         Math.sin(Math.toRadians((this.getYRot() + 180.0F))) * 0.7D,
                         -0.3D,
-                        Math.cos(Math.toRadians(this.getYRot())) * 0.7D)
-                );
+                        Math.cos(Math.toRadians(this.getYRot())) * 0.7D));
 
                 RANDOM_DODGE_DELAY = Mth.randomBetween(getRandom(), 20.0f, 300.0f);
                 setHurtStage(2);
@@ -234,8 +235,7 @@ public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
                         Math.sin(Math.toRadians(this.getYRot() +
                                 Mth.randomBetween(this.getRandom(), 90.0f, 270.0f))) * 0.4D,
                         0.0D,
-                        Math.cos(Math.toRadians(this.getYRot())) * 0.4D)
-                );
+                        Math.cos(Math.toRadians(this.getYRot())) * 0.4D));
             }
 
             RANDOM_DODGE_DELAY = Mth.randomBetween(getRandom(), 30.0f, 300.0f);
@@ -250,15 +250,13 @@ public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
                             Math.sin(Math.toRadians(this.getYRot() +
                                     Mth.randomBetween(this.getRandom(), 90.0f, 100.0f))) * 0.6D,
                             0.0D,
-                            Math.cos(Math.toRadians(this.getYRot())) * 0.3D
-                    ));
+                            Math.cos(Math.toRadians(this.getYRot())) * 0.3D));
                 } else {
                     this.setDeltaMovement(new Vec3(
                             Math.sin(Math.toRadians(this.getYRot() +
                                     Mth.randomBetween(this.getRandom(), 260.0f, 270.0f))) * 0.6D,
                             0.0D,
-                            Math.cos(Math.toRadians(this.getYRot())) * 0.3D
-                    ));
+                            Math.cos(Math.toRadians(this.getYRot())) * 0.3D));
                 }
             }
 
@@ -271,7 +269,7 @@ public class DragonflyEntity extends Monster implements GeoEntity, NeutralMob {
     @Override
     public void aiStep() {
         if (!this.level().isClientSide) {
-            this.updatePersistentAnger((ServerLevel)this.level(), true);
+            this.updatePersistentAnger((ServerLevel) this.level(), true);
         }
         super.aiStep();
     }

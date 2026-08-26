@@ -3,6 +3,7 @@ package com.juiceybeans.eeexpanded.init;
 import com.juiceybeans.eeexpanded.EEExpanded;
 import com.juiceybeans.eeexpanded.core.DeferredObject;
 import com.juiceybeans.eeexpanded.core.RegisterFunction;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
 
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EEESoundEvents {
+
     static Map<String, DeferredObject<? extends SoundEvent>> soundEvents = new HashMap<>();
 
     public static final SoundEvent SILENT_STEP = SoundEvent.createVariableRangeEvent(EEExpanded.id("silentstep"));

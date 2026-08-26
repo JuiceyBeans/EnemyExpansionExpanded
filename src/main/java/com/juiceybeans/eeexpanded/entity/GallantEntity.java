@@ -1,25 +1,31 @@
 package com.juiceybeans.eeexpanded.entity;
 
 import com.juiceybeans.eeexpanded.entity.projectile.GallantSwingsEntity;
+import com.juiceybeans.eeexpanded.init.EEESoundEvents;
 import com.juiceybeans.eeexpanded.init.EEEntities;
-import com.juiceybeans.eeexpanded.init.EESoundEvents;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.TimeUtil;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -27,6 +33,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
@@ -34,15 +41,21 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.NetworkHooks;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.UUID;
+
 public class GallantEntity extends Monster implements GeoEntity {
+
     private static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("attack");
@@ -50,20 +63,20 @@ public class GallantEntity extends Monster implements GeoEntity {
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    private static final EntityDataAccessor<Integer> HURT_STAGE =
-            SynchedEntityData.defineId(GallantEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> ATTACK_STAGE =
-            SynchedEntityData.defineId(GallantEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> HURT_STAGE = SynchedEntityData.defineId(GallantEntity.class,
+            EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> ATTACK_STAGE = SynchedEntityData.defineId(GallantEntity.class,
+            EntityDataSerializers.INT);
 
     private long hurtStageStart = 0;
     private long attackStageStart = 0;
-
-    private boolean isAttackerInWater;
 
     private static final long CHARGE_DELAY = 16;
     private static final long SWING_DELAY = 6;
     private static final long FIRST_WAVE_DELAY = 12;
     private static final long SECOND_WAVE_DELAY = 8;
+
+    private boolean isAttackerInWater;
 
     public GallantEntity(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
@@ -115,14 +128,15 @@ public class GallantEntity extends Monster implements GeoEntity {
         this.targetSelector.addGoal(2, new HurtByTargetGoal(this).setAlertOthers());
         this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.8D));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Player.class, false, false) {
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, false, false) {
+
             @Override
             public boolean canUse() {
                 Level world = GallantEntity.this.level();
                 return super.canUse() && world.isNight();
             }
         });
-        this.targetSelector.addGoal(6, new NearestAttackableTargetGoal<>(this, Villager.class, false, false));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Villager.class, false, false));
     }
 
     @Override
@@ -137,7 +151,7 @@ public class GallantEntity extends Monster implements GeoEntity {
 
     @Override
     protected @Nullable SoundEvent getAmbientSound() {
-        return EESoundEvents.SILENT_STEP;
+        return EEESoundEvents.SILENT_STEP;
     }
 
     @Override
@@ -176,12 +190,13 @@ public class GallantEntity extends Monster implements GeoEntity {
         if (source == this.damageSources().cactus()) return false;
         if (source == this.damageSources().wither()) return false;
         if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.WITHER_SKULL)) return false; // if there's a better way to do this LET ME KNOW!!
+                .getOrThrow(DamageTypes.WITHER_SKULL))
+            return false; // if there's a better way to do this LET ME KNOW!!
 
         // raise shield
-        if (getAttackStage() == 0 && getHurtStage() == 0
-                && (source.getEntity() instanceof Player || source.getEntity() instanceof Arrow)
-                && level().random.nextInt() <= 0.75D) {
+        if (getAttackStage() == 0 && getHurtStage() == 0 &&
+                (source.getEntity() instanceof Player || source.getEntity() instanceof Arrow) &&
+                level().random.nextInt() <= 0.75D) {
 
             if (source.getEntity() instanceof Player player && player.isCreative()) return false;
 
@@ -241,7 +256,8 @@ public class GallantEntity extends Monster implements GeoEntity {
 
         if (getAttackStage() == 1 && thisTick >= this.attackStageStart + FIRST_WAVE_DELAY) {
             swingBurstAttack(6.0F, 180.0F, 1.0F);
-            this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.0F, 0.0F);
+            this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE,
+                    1.0F, 0.0F);
 
             setAttackStage(2);
             this.attackStageStart = thisTick;
@@ -249,7 +265,8 @@ public class GallantEntity extends Monster implements GeoEntity {
 
         if (getAttackStage() == 2 && thisTick >= this.attackStageStart + SECOND_WAVE_DELAY) {
             swingBurstAttack(6.0F, 180.0F, 1.0F);
-            this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.0F, 0.0F);
+            this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE,
+                    1.0F, 0.0F);
 
             setAttackStage(0);
             this.attackStageStart = 0;
@@ -273,12 +290,12 @@ public class GallantEntity extends Monster implements GeoEntity {
                     this.getLookAngle().y,
                     this.getLookAngle().z,
                     speed,
-                    inaccuracy
-            );
+                    inaccuracy);
             level().addFreshEntity(projectile);
         }
 
-        this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.0F, 0.0F);
+        this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.0F,
+                0.0F);
     }
 
     @Override

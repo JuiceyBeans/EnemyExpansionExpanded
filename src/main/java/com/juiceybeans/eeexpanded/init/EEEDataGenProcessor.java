@@ -1,12 +1,14 @@
 package com.juiceybeans.eeexpanded.init;
 
 import com.juiceybeans.eeexpanded.core.DeferredObject;
+
 import net.minecraft.world.item.Item;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class EEEDataGenProcessor {
+
     static final Map<String, DeferredObject<? extends Item>> defaultItems = new HashMap<>();
 
     /**

@@ -5,6 +5,7 @@ import com.juiceybeans.eeexpanded.core.RegisterFunction;
 import com.juiceybeans.eeexpanded.init.EEECreativeTabs;
 import com.juiceybeans.eeexpanded.init.EEEItems;
 import com.juiceybeans.eeexpanded.init.EEEntities;
+
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -12,7 +13,6 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
-import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.RegisterEvent;
@@ -20,16 +20,18 @@ import net.minecraftforge.registries.RegisterEvent;
 import java.util.function.Consumer;
 
 public class CommonEvents {
+
     @Mod.EventBusSubscriber(modid = EEExpanded.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ModBusEvents {
+
         @SubscribeEvent
         public static void registerContent(RegisterEvent event) {
             if (event.getRegistryKey() == Registries.ENTITY_TYPE)
                 register(event, EEEntities::register);
             else if (event.getRegistryKey() == Registries.ITEM)
                 register(event, EEEItems::register);
-//            else if (event.getRegistryKey() == Registries.MOB_EFFECT)
-//                register(event, EEMobEffects::register);
+            // else if (event.getRegistryKey() == Registries.MOB_EFFECT)
+            // register(event, EEMobEffects::register);
         }
 
         @SubscribeEvent
@@ -51,6 +53,7 @@ public class CommonEvents {
 
     @Mod.EventBusSubscriber(modid = EEExpanded.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ForgeBusEvents {
+
         @SubscribeEvent
         public static void createCinderSpawns(MobSpawnEvent.FinalizeSpawn event) {
             if (!(event.getSpawnType() == MobSpawnType.NATURAL)) return;

@@ -4,6 +4,7 @@ import com.juiceybeans.eeexpanded.EEExpanded;
 import com.juiceybeans.eeexpanded.core.DeferredObject;
 import com.juiceybeans.eeexpanded.init.EEECreativeTabs;
 import com.juiceybeans.eeexpanded.init.EEEDataGenProcessor;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -12,6 +13,7 @@ import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class EEEItemModelProvider extends ItemModelProvider {
+
     public EEEItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, EEExpanded.MOD_ID, existingFileHelper);
     }
@@ -31,8 +33,7 @@ public class EEEItemModelProvider extends ItemModelProvider {
     private void simpleItem(String name) {
         withExistingParent(name,
                 ResourceLocation.withDefaultNamespace("item/generated")).texture(
-                "layer0",
-                EEExpanded.id("item/" + name)
-        );
+                        "layer0",
+                        EEExpanded.id("item/" + name));
     }
 }

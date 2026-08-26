@@ -3,6 +3,7 @@ package com.juiceybeans.eeexpanded.core;
 import java.util.function.Supplier;
 
 public class DeferredObject<T> implements Supplier<T> {
+
     private Supplier<T> supplier;
     private T cachedValue;
     private boolean isInitialized = false;

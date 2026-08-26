@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 
 @FunctionalInterface
 public interface RegisterFunction<T> {
+
     /**
      * Register a single object into the supplied {@link Registry} under the given {@link ResourceLocation}.
      * <p>

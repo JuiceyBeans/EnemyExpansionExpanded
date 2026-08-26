@@ -17,11 +17,13 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.network.NetworkHooks;
 
 public class CinderFireballEntity extends AbstractArrow implements ItemSupplier {
+
     public CinderFireballEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
     }
 
-    public CinderFireballEntity(EntityType<? extends AbstractArrow> entityType, double x, double y, double z, Level level) {
+    public CinderFireballEntity(EntityType<? extends AbstractArrow> entityType, double x, double y, double z,
+                                Level level) {
         super(entityType, x, y, z, level);
     }
 
@@ -54,7 +56,8 @@ public class CinderFireballEntity extends AbstractArrow implements ItemSupplier 
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
 
-        if (!(result.getEntity() instanceof LivingEntity living && living.isBlocking())) result.getEntity().setSecondsOnFire(4);
+        if (!(result.getEntity() instanceof LivingEntity living && living.isBlocking()))
+            result.getEntity().setSecondsOnFire(4);
     }
 
     @Override

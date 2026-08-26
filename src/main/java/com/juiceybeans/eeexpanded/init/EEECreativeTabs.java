@@ -1,18 +1,19 @@
 package com.juiceybeans.eeexpanded.init;
 
 import com.juiceybeans.eeexpanded.core.DeferredObject;
+
 import net.minecraft.world.item.Item;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class EEECreativeTabs {
+
     private static final Set<DeferredObject<? extends Item>> GENERAL_ITEMS = new HashSet<>();
 
     private static final Set<DeferredObject<? extends Item>> SPAWN_EGGS = new HashSet<>();
 
-    private EEECreativeTabs() {
-    }
+    private EEECreativeTabs() {}
 
     public static void addItem(DeferredObject<? extends Item> item) {
         GENERAL_ITEMS.add(item);

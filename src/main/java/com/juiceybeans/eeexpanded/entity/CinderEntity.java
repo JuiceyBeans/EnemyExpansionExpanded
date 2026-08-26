@@ -1,8 +1,9 @@
 package com.juiceybeans.eeexpanded.entity;
 
 import com.juiceybeans.eeexpanded.entity.projectile.CinderFireballEntity;
-import com.juiceybeans.eeexpanded.init.EEEntities;
 import com.juiceybeans.eeexpanded.init.EEESoundEvents;
+import com.juiceybeans.eeexpanded.init.EEEntities;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -43,16 +45,17 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class CinderEntity extends Monster implements GeoEntity {
+
     private static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("attack");
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    private static final EntityDataAccessor<Integer> HURT_STAGE =
-            SynchedEntityData.defineId(CinderEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> ATTACK_STAGE =
-            SynchedEntityData.defineId(CinderEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> HURT_STAGE = SynchedEntityData.defineId(CinderEntity.class,
+            EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> ATTACK_STAGE = SynchedEntityData.defineId(CinderEntity.class,
+            EntityDataSerializers.INT);
 
     private long hurtStageStart = 0;
     private long attackStageStart = 0;
@@ -170,9 +173,11 @@ public class CinderEntity extends Monster implements GeoEntity {
         if (source == this.damageSources().cactus()) return false;
         if (source == this.damageSources().wither()) return false;
         if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.WITHER_SKULL)) return false; // if there's a better way to do this LET ME KNOW!!
+                .getOrThrow(DamageTypes.WITHER_SKULL))
+            return false; // if there's a better way to do this LET ME KNOW!!
         if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.FALLING_ANVIL)) return false;
+                .getOrThrow(DamageTypes.FALLING_ANVIL))
+            return false;
 
         if (source.getEntity() instanceof Player) {
             setHurtStage(1);
@@ -184,7 +189,8 @@ public class CinderEntity extends Monster implements GeoEntity {
                 hurtStageStart = this.level().getGameTime(); // we summon a FIREBALL in 3 seconds
             }
 
-            if (level().random.nextFloat() < 0.3f && level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).is(Blocks.AIR)) {
+            if (level().random.nextFloat() < 0.3f &&
+                    level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).is(Blocks.AIR)) {
                 this.setDeltaMovement(new Vec3(-0.5D, 1.0D, -0.5D));
             } else {
                 this.setDeltaMovement(new Vec3(0.5D, 1.0D, 0.5D));
@@ -208,7 +214,8 @@ public class CinderEntity extends Monster implements GeoEntity {
         this.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 0, false, false));
         this.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 60, 0, false, false));
 
-        if (level().getBlockState(new BlockPos(this.getBlockX(), this.getBlockY() - 1, this.getBlockZ())).is(Blocks.LAVA)) {
+        if (level().getBlockState(new BlockPos(this.getBlockX(), this.getBlockY() - 1, this.getBlockZ()))
+                .is(Blocks.LAVA)) {
             if (getRandom().nextInt() > 0.5D) this.setDeltaMovement(new Vec3(-0.6D, 3.0D, -0.6D));
             else this.setDeltaMovement(new Vec3(0.6D, 3.0D, 0.6D));
         }
