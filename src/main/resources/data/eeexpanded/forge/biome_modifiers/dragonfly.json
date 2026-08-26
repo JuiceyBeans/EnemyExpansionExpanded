@@ -2,7 +2,8 @@
   "type": "forge:add_spawns",
   "biomes": [
     "minecraft:plains",
-    "minecraft:swamp"
+    "minecraft:swamp",
+    "minecraft:mangrove_swamp"
   ],
   "spawners": {
     "type": "eeexpanded:dragonfly",
