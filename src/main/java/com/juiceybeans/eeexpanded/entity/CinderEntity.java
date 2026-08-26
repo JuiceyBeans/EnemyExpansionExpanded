@@ -1,8 +1,6 @@
 package com.juiceybeans.eeexpanded.entity;
 
-import com.juiceybeans.eeexpanded.entity.projectile.CinderFireballEntity;
 import com.juiceybeans.eeexpanded.init.EEESoundEvents;
-import com.juiceybeans.eeexpanded.init.EEEntities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -29,6 +27,8 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Fireball;
+import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -46,7 +46,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class CinderEntity extends Monster implements GeoEntity {
 
-    private static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("attack");
 
@@ -114,10 +113,10 @@ public class CinderEntity extends Monster implements GeoEntity {
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2D, true));
-        this.targetSelector.addGoal(2, new HurtByTargetGoal(this).setAlertOthers());
-        this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.8D));
-        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(5, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
+        this.goalSelector.addGoal(2, new RandomStrollGoal(this, 0.8D));
+        this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
     }
 
     @Override
@@ -164,7 +163,7 @@ public class CinderEntity extends Monster implements GeoEntity {
         if (this.level().isClientSide()) return false;
 
         if (source.getEntity() instanceof Player player && player.isCreative()) return super.hurt(source, amount);
-        if (source.getEntity() instanceof CinderFireballEntity) return false;
+        if (source.getEntity() instanceof SmallFireball) return false;
         if (source.getEntity() instanceof AbstractArrow) return false;
         if (source == this.damageSources().fall()) return false;
         if (source == this.damageSources().lava()) return false;
@@ -221,16 +220,13 @@ public class CinderEntity extends Monster implements GeoEntity {
         }
 
         if (getHurtStage() == 1 && this.level().getGameTime() >= hurtStageStart + FIREBALL_DELAY) {
-            CinderFireballEntity projectile = new CinderFireballEntity(EEEntities.CINDER_FIREBALL.get(), level());
+            Fireball projectile = new SmallFireball(EntityType.SMALL_FIREBALL, level());
 
-            projectile.setBaseDamage(5.0f);
-            projectile.setKnockback(1);
             projectile.setNoGravity(true);
             projectile.setPos(this.getX(), this.getEyeY() - 0.1D, this.getZ());
-            projectile.setOwner(this);
-
             projectile.shoot(this.getLookAngle().x, this.getLookAngle().y, this.getLookAngle().z, 1.0f, 1.0f);
             level().addFreshEntity(projectile);
+
             this.playSound(SoundEvents.FIRECHARGE_USE);
 
             setHurtStage(0);

@@ -3,11 +3,7 @@ package com.juiceybeans.eeexpanded.init;
 import com.juiceybeans.eeexpanded.EEExpanded;
 import com.juiceybeans.eeexpanded.core.DeferredObject;
 import com.juiceybeans.eeexpanded.core.RegisterFunction;
-import com.juiceybeans.eeexpanded.entity.CinderEntity;
-import com.juiceybeans.eeexpanded.entity.DragonflyEntity;
-import com.juiceybeans.eeexpanded.entity.EyestalkerEntity;
-import com.juiceybeans.eeexpanded.entity.GallantEntity;
-import com.juiceybeans.eeexpanded.entity.projectile.CinderFireballEntity;
+import com.juiceybeans.eeexpanded.entity.*;
 import com.juiceybeans.eeexpanded.entity.projectile.GallantSwingsEntity;
 import com.juiceybeans.eeexpanded.mixin.SpawnPlacementsAccessor;
 
@@ -49,11 +45,6 @@ public class EEEntities {
     // projectiles
     public static final DeferredObject<EntityType<GallantSwingsEntity>> GALLANT_SWINGS = entity("gallant_swings",
             EntityType.Builder.<GallantSwingsEntity>of(GallantSwingsEntity::new, MobCategory.MISC)
-                    .setShouldReceiveVelocityUpdates(true)
-                    .setUpdateInterval(1)
-                    .sized(0.5F, 0.5F));
-    public static final DeferredObject<EntityType<CinderFireballEntity>> CINDER_FIREBALL = entity("cinder_fireball",
-            EntityType.Builder.<CinderFireballEntity>of(CinderFireballEntity::new, MobCategory.MISC)
                     .setShouldReceiveVelocityUpdates(true)
                     .setUpdateInterval(1)
                     .sized(0.5F, 0.5F));

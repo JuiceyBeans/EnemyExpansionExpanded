@@ -31,6 +31,5 @@ public class ClientEvents {
                 (EntityRendererProvider.Context context) -> new GeoEntityRenderer<>(context, new DragonflyModel()));
 
         event.registerEntityRenderer(EEEntities.GALLANT_SWINGS.get(), ThrownItemRenderer::new);
-        event.registerEntityRenderer(EEEntities.CINDER_FIREBALL.get(), ThrownItemRenderer::new);
     }
 }
