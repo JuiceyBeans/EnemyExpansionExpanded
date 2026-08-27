@@ -41,6 +41,10 @@ public class EEEntities {
             EntityType.Builder.of(DragonflyEntity::new, MobCategory.MONSTER)
                     .setShouldReceiveVelocityUpdates(true)
                     .sized(0.8F, 1.95F));
+    public static final DeferredObject<EntityType<GuardsmanEntity>> GUARDSMAN = entity("guardsman",
+            EntityType.Builder.of(GuardsmanEntity::new, MobCategory.MONSTER)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .sized(0.8F, 1.95F));
 
     // projectiles
     public static final DeferredObject<EntityType<GallantSwingsEntity>> GALLANT_SWINGS = entity("gallant_swings",
@@ -72,6 +76,7 @@ public class EEEntities {
         consumer.accept(CINDER.get(), CinderEntity.createAttributes().build());
         consumer.accept(EYESTALKER.get(), EyestalkerEntity.createAttributes().build());
         consumer.accept(DRAGONFLY.get(), DragonflyEntity.createAttributes().build());
+        consumer.accept(GUARDSMAN.get(), GuardsmanEntity.createAttributes().build());
     }
 
     public static Map<String, DeferredObject<EntityType<? extends Entity>>> getEntityTypes() {

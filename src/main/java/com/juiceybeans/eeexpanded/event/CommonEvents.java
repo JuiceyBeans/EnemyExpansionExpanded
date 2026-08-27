@@ -10,11 +10,13 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraftforge.common.DungeonHooks;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.function.Consumer;
@@ -44,6 +46,14 @@ public class CommonEvents {
             if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
                 EEECreativeTabs.getSpawnEggs().forEach(item -> event.accept(item.get()));
             }
+        }
+
+        @SubscribeEvent
+        public static void addMobsToDungeonSpawners(FMLCommonSetupEvent event) {
+            event.enqueueWork(() -> {
+                DungeonHooks.addDungeonMob(EEEntities.GALLANT.get(), 120);
+                DungeonHooks.addDungeonMob(EEEntities.GUARDSMAN.get(), 180);
+            });
         }
 
         private static <T> void register(RegisterEvent event, Consumer<RegisterFunction<T>> consumer) {

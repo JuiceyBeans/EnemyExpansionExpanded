@@ -1,12 +1,11 @@
 - [x] Cinder
-- [ ] Dragonfly
+- [x] Dragonfly
 - [x] Eyestalker
 - [x] Gallant
-- [ ] Guardsman
+- [x] Guardsman
 - [ ] Kelpies
 - [ ] Propeller
 
-- [x] Gallant goes into strike animation
 - [x] Test mob spawns
-- [ ] Gallant aggro persistence on world reload
-- [ ] Test if gallant takes fire damage
+- [ ] Anger persistence
+- [x] Test cinder fireball vs regular fire charge
