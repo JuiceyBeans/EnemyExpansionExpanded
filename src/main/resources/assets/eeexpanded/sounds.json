@@ -1,9 +1,33 @@
 {
-  "silentstep": {
+  "entity.silentstep": {
     "category": "hostile",
     "sounds": [
       {
         "name": "eeexpanded:silentstep",
+        "stream": false
+      }
+    ]
+  },
+  "entity.kelpie.idle": {
+    "category": "hostile",
+    "subtitle": "subtitles.kelpie_idle",
+    "sounds": [
+      {
+        "name": "eeexpanded:kelpie_idle_1",
+        "stream": false
+      },
+      {
+        "name": "eeexpanded:kelpie_idle_2",
+        "stream": false
+      }
+    ]
+  },
+  "entity.kelpie.reinforcement": {
+    "category": "hostile",
+    "subtitle": "subtitles.kelpie.reinforcement",
+    "sounds": [
+      {
+        "name": "eeexpanded:kelpie_reinforcement",
         "stream": false
       }
     ]

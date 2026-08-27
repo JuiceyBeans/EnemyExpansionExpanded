@@ -45,6 +45,10 @@ public class EEEntities {
             EntityType.Builder.of(GuardsmanEntity::new, MobCategory.MONSTER)
                     .setShouldReceiveVelocityUpdates(true)
                     .sized(0.7F, 2.45F));
+    public static final DeferredObject<EntityType<KelpieEntity>> KELPIE = entity("kelpie",
+            EntityType.Builder.of(KelpieEntity::new, MobCategory.WATER_CREATURE)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .sized(1.95F, 2.45F));
 
     // projectiles
     public static final DeferredObject<EntityType<GallantSwingsEntity>> GALLANT_SWINGS = entity("gallant_swings",
@@ -64,10 +68,19 @@ public class EEEntities {
 
     public static void registerSpawns() {
         registerMobSpawn(EEEntities.GALLANT.get());
+        registerMobSpawn(EEEntities.EYESTALKER.get());
+        registerMobSpawn(EEEntities.DRAGONFLY.get());
+        registerMobSpawn(EEEntities.GUARDSMAN.get());
+        registerAquaticMobSpawn(EEEntities.KELPIE.get());
     }
 
     public static void registerMobSpawn(EntityType<?> type) {
         SpawnPlacementsAccessor.callRegister(type, SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EEEntities::checkHostileRules);
+    }
+
+    public static void registerAquaticMobSpawn(EntityType<?> type) {
+        SpawnPlacementsAccessor.callRegister(type, SpawnPlacements.Type.IN_WATER,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EEEntities::checkHostileRules);
     }
 
@@ -77,6 +90,7 @@ public class EEEntities {
         consumer.accept(EYESTALKER.get(), EyestalkerEntity.createAttributes().build());
         consumer.accept(DRAGONFLY.get(), DragonflyEntity.createAttributes().build());
         consumer.accept(GUARDSMAN.get(), GuardsmanEntity.createAttributes().build());
+        consumer.accept(KELPIE.get(), KelpieEntity.createAttributes().build());
     }
 
     public static Map<String, DeferredObject<EntityType<? extends Entity>>> getEntityTypes() {

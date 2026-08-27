@@ -2,18 +2,17 @@ package com.juiceybeans.eeexpanded.event;
 
 import com.juiceybeans.eeexpanded.EEExpanded;
 import com.juiceybeans.eeexpanded.core.RegisterFunction;
-import com.juiceybeans.eeexpanded.init.EEECreativeTabs;
-import com.juiceybeans.eeexpanded.init.EEEItems;
-import com.juiceybeans.eeexpanded.init.EEEMobEffects;
-import com.juiceybeans.eeexpanded.init.EEEntities;
+import com.juiceybeans.eeexpanded.init.*;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.common.DungeonHooks;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -78,6 +77,13 @@ public class CommonEvents {
                         event.getLevel().addFreshEntity(cinder);
                     }
                 }
+            }
+        }
+
+        @SubscribeEvent
+        public static void preventDismounts(EntityMountEvent event) {
+            if (event.getEntityMounting() instanceof Player player && event.isDismounting() && !player.isCreative()) {
+                // if (event.getEntityBeingMounted().getType().is(EEETags.CANNOT_DISMOUNT)) event.setCanceled(true);
             }
         }
     }

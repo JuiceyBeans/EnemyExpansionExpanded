@@ -24,6 +24,7 @@ public class EEERenderers {
         registerEntityRender(EEEntities.EYESTALKER, EyestalkerRenderer::new);
         registerEntityRender(EEEntities.DRAGONFLY, DragonflyRenderer::new);
         registerEntityRender(EEEntities.GUARDSMAN, GuardsmanRenderer::new);
+        registerEntityRender(EEEntities.KELPIE, KelpieRenderer::new);
     }
 
     public static Map<DeferredObject<EntityType<? extends Entity>>, EntityRendererProvider<?>> getRenderers() {

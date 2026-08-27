@@ -28,6 +28,8 @@ public class ClientEvents {
                 (EntityRendererProvider.Context context) -> new GeoEntityRenderer<>(context, new DragonflyModel()));
         event.registerEntityRenderer(EEEntities.GUARDSMAN.get(),
                 (EntityRendererProvider.Context context) -> new GeoEntityRenderer<>(context, new GuardsmanModel()));
+        event.registerEntityRenderer(EEEntities.KELPIE.get(),
+                (EntityRendererProvider.Context context) -> new GeoEntityRenderer<>(context, new KelpieModel()));
 
         event.registerEntityRenderer(EEEntities.GALLANT_SWINGS.get(), ThrownItemRenderer::new);
     }
