@@ -5,6 +5,8 @@ import com.juiceybeans.eeexpanded.init.EEEntities;
 
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -45,6 +47,11 @@ public class GallantSwingsEntity extends AbstractArrow implements ItemSupplier {
     }
 
     @Override
+    protected SoundEvent getDefaultHitGroundSoundEvent() {
+        return SoundEvents.PLAYER_HURT;
+    }
+
+    @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
@@ -73,29 +80,11 @@ public class GallantSwingsEntity extends AbstractArrow implements ItemSupplier {
         swing.shoot(shooter.getLookAngle().x, shooter.getLookAngle().y, shooter.getLookAngle().z,
                 power * 2.0F, 0.0F);
         swing.setNoGravity(true);
-        swing.setCritArrow(false);
         swing.setBaseDamage(damage);
         swing.setKnockback(knockback);
 
         level.addFreshEntity(swing);
 
-        return swing;
-    }
-
-    public static GallantSwingsEntity shoot(LivingEntity shooter, LivingEntity target) {
-        Level level = shooter.level();
-        GallantSwingsEntity swing = new GallantSwingsEntity(EEEntities.GALLANT_SWINGS.get(), shooter, level);
-
-        double dx = target.getX() - shooter.getX();
-        double dy = target.getY() + target.getEyeHeight() - 1.1D;
-        double dz = target.getZ() - shooter.getZ();
-        swing.shoot(dx, dy - swing.getY() + Math.hypot(dx, dz) * 0.2D, dz, 2.0F, 12.0F);
-        swing.setNoGravity(true);
-        swing.setBaseDamage(14.0D);
-        swing.setKnockback(1);
-        swing.setCritArrow(false);
-
-        level.addFreshEntity(swing);
         return swing;
     }
 }
