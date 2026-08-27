@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "eeexpanded.refmap.json",
   "mixins": [
+    "ServerLevelMixin",
     "SpawnPlacementsAccessor"
   ],
   "injectors": {

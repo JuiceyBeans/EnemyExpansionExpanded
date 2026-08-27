@@ -1,6 +1,9 @@
 package com.juiceybeans.eeexpanded;
 
+import com.juiceybeans.eeexpanded.core.ServerLevelRuns;
+
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -29,5 +32,9 @@ public class EEExpanded {
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    public static void scheduleTask(ServerLevel level, int time, Runnable runnable) {
+        ((ServerLevelRuns) level).eeexpanded$addServerLevelRun(time, runnable);
     }
 }
