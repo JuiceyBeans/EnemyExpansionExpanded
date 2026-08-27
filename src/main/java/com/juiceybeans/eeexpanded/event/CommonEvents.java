@@ -4,6 +4,7 @@ import com.juiceybeans.eeexpanded.EEExpanded;
 import com.juiceybeans.eeexpanded.core.RegisterFunction;
 import com.juiceybeans.eeexpanded.init.EEECreativeTabs;
 import com.juiceybeans.eeexpanded.init.EEEItems;
+import com.juiceybeans.eeexpanded.init.EEEMobEffects;
 import com.juiceybeans.eeexpanded.init.EEEntities;
 
 import net.minecraft.core.registries.Registries;
@@ -32,8 +33,8 @@ public class CommonEvents {
                 register(event, EEEntities::register);
             else if (event.getRegistryKey() == Registries.ITEM)
                 register(event, EEEItems::register);
-            // else if (event.getRegistryKey() == Registries.MOB_EFFECT)
-            // register(event, EEMobEffects::register);
+            else if (event.getRegistryKey() == Registries.MOB_EFFECT)
+                register(event, EEEMobEffects::register);
         }
 
         @SubscribeEvent
