@@ -44,7 +44,7 @@ public class EEEntities {
     public static final DeferredObject<EntityType<GuardsmanEntity>> GUARDSMAN = entity("guardsman",
             EntityType.Builder.of(GuardsmanEntity::new, MobCategory.MONSTER)
                     .setShouldReceiveVelocityUpdates(true)
-                    .sized(0.8F, 1.95F));
+                    .sized(0.7F, 2.45F));
 
     // projectiles
     public static final DeferredObject<EntityType<GallantSwingsEntity>> GALLANT_SWINGS = entity("gallant_swings",
