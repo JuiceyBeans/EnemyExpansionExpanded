@@ -1,9 +1,11 @@
 package com.juiceybeans.eeexpanded.entity;
 
+import com.juiceybeans.eeexpanded.EEExpanded;
 import com.juiceybeans.eeexpanded.entity.projectile.GallantSwingsEntity;
 import com.juiceybeans.eeexpanded.init.EEESoundEvents;
 import com.juiceybeans.eeexpanded.init.EEEntities;
 
+import com.juiceybeans.eeexpanded.util.AnimationUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -67,14 +69,6 @@ public class GallantEntity extends Monster implements GeoEntity {
             EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTACK_STAGE = SynchedEntityData.defineId(GallantEntity.class,
             EntityDataSerializers.INT);
-
-    private long hurtStageStart = 0;
-    private long attackStageStart = 0;
-
-    private static final long CHARGE_DELAY = 16;
-    private static final long SWING_DELAY = 6;
-    private static final long FIRST_WAVE_DELAY = 12;
-    private static final long SECOND_WAVE_DELAY = 8;
 
     private boolean isAttackerInWater;
 
@@ -164,11 +158,21 @@ public class GallantEntity extends Monster implements GeoEntity {
 
     @Override
     public boolean doHurtTarget(Entity entity) {
-        if (getAttackStage() == 0) {
-            setAttackStage(1);
-            this.attackStageStart = this.level().getGameTime();
-            return true;
-        } else return false;
+        triggerAnim("Attack", "attack");
+
+        EEExpanded.scheduleTask((ServerLevel) level(), 12, () -> {
+            swingBurstAttack(6.0F, 180.0F, 1.0F);
+            this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE,
+                    1.0F, 0.0F);
+
+            EEExpanded.scheduleTask((ServerLevel) level(), 8, () -> {
+                swingBurstAttack(6.0F, 180.0F, 1.0F);
+                this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE,
+                        1.0F, 0.0F);
+            });
+        });
+
+        return super.doHurtTarget(entity);
     }
 
     @Override
@@ -177,20 +181,17 @@ public class GallantEntity extends Monster implements GeoEntity {
 
         if (source.getEntity() instanceof Player player && player.isCreative()) return super.hurt(source, amount);
         if (source.getEntity() instanceof GallantSwingsEntity swings && swings.getOwner() == this) return false;
+
         if (source == this.damageSources().lava()) return false;
         if (source == this.damageSources().drown()) return false;
         if (source == this.damageSources().fall()) return false;
         if (source == this.damageSources().cactus()) return false;
         if (source == this.damageSources().wither()) return false;
         if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.WITHER_SKULL))
-            return false; // if there's a better way to do this LET ME KNOW!!
+                .getOrThrow(DamageTypes.WITHER_SKULL)) return false; // if there's a better way to do this LET ME KNOW!!
 
         // raise shield
-        if (getAttackStage() == 0 && getHurtStage() == 0 &&
-                (source.getEntity() instanceof Player || source.getEntity() instanceof Arrow) &&
-                level().random.nextInt() <= 0.75D) {
-
+        if ((source.getEntity() instanceof Player || source.getEntity() instanceof Arrow) && level().random.nextDouble() <= 0.75D) {
             if (source.getEntity() instanceof Player player && player.isCreative()) return false;
 
             this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 20, 2, false, false));
@@ -198,8 +199,23 @@ public class GallantEntity extends Monster implements GeoEntity {
 
             this.level().playSound(null, this.blockPosition(), SoundEvents.BLAZE_HURT, SoundSource.HOSTILE, 1.0F, 0.0F);
 
-            setHurtStage(1);
-            this.hurtStageStart = this.level().getGameTime();
+            triggerAnim("Attack", "shielding");
+
+            EEExpanded.scheduleTask((ServerLevel) level(), 16, () -> {
+                this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 12, 2, false, false));
+                this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 30, 1, false, false));
+
+                EEExpanded.scheduleTask((ServerLevel) level(), 6, () -> {
+                    var damage = isAttackerInWater ? 8.0F : 14.0F;
+                    var speed = isAttackerInWater ? 0.6F : 1.0F;
+                    var spreadRange = isAttackerInWater ? 100.0F : 180.0F;
+
+                    swingBurstAttack(damage, spreadRange, speed);
+
+                    isAttackerInWater = false;
+                });
+            });
+
             this.isAttackerInWater = source.getEntity().isInWater();
         }
 
@@ -223,46 +239,6 @@ public class GallantEntity extends Monster implements GeoEntity {
 
         if (this.getHealth() < 6.0F) {
             this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, 1, false, false));
-        }
-
-        long thisTick = this.level().getGameTime();
-
-        if (getHurtStage() == 1 && thisTick >= this.hurtStageStart + CHARGE_DELAY) { // charge
-            this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 12, 2, false, false));
-            this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 30, 1, false, false));
-
-            setHurtStage(2);
-            this.hurtStageStart = thisTick;
-        }
-
-        if (getHurtStage() == 2 && thisTick >= this.hurtStageStart + SWING_DELAY) { // swing
-            var damage = isAttackerInWater ? 8.0F : 14.0F;
-            var speed = isAttackerInWater ? 0.6F : 1.0F;
-            var spreadRange = isAttackerInWater ? 100.0F : 180.0F;
-
-            swingBurstAttack(damage, spreadRange, speed);
-
-            setHurtStage(0);
-            this.hurtStageStart = 0;
-            isAttackerInWater = false;
-        }
-
-        if (getAttackStage() == 1 && thisTick >= this.attackStageStart + FIRST_WAVE_DELAY) {
-            swingBurstAttack(6.0F, 180.0F, 1.0F);
-            this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE,
-                    1.0F, 0.0F);
-
-            setAttackStage(2);
-            this.attackStageStart = thisTick;
-        }
-
-        if (getAttackStage() == 2 && thisTick >= this.attackStageStart + SECOND_WAVE_DELAY) {
-            swingBurstAttack(6.0F, 180.0F, 1.0F);
-            this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE,
-                    1.0F, 0.0F);
-
-            setAttackStage(0);
-            this.attackStageStart = 0;
         }
     }
 
@@ -298,17 +274,9 @@ public class GallantEntity extends Monster implements GeoEntity {
             return state.setAndContinue(IDLE);
         }));
 
-        controllers.add(new AnimationController<>(this, "Attack", 0, state -> {
-            if (getAttackStage() >= 1) {
-                return state.setAndContinue(ATTACK);
-            }
-
-            if (getHurtStage() >= 1) {
-                return state.setAndContinue(SHIELD);
-            }
-
-            return PlayState.STOP;
-        }));
+        controllers.add(new AnimationController<>(this, "Attack", 0, state -> PlayState.STOP)
+                .triggerableAnim("attack", ATTACK)
+                .triggerableAnim("shielding", SHIELD));
     }
 
     @Override
