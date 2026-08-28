@@ -1,12 +1,11 @@
 package com.juiceybeans.eeexpanded.entity;
 
+import com.juiceybeans.eeexpanded.EEExpanded;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -54,18 +53,7 @@ public class GuardsmanEntity extends AbstractSkeleton implements GeoEntity {
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    private static final EntityDataAccessor<Boolean> RETALIATION = SynchedEntityData.defineId(GuardsmanEntity.class,
-            EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Boolean> HEALING = SynchedEntityData.defineId(GuardsmanEntity.class,
-            EntityDataSerializers.BOOLEAN);
-
-    private long retaliationStart = 0;
-    private long healingStart = 0;
-
     private static final long MELEE_DIST = 4;
-
-    private static final long RETALIATION_DELAY = 20;
-    private static final long HEALING_DELAY = 20;
 
     public GuardsmanEntity(EntityType<? extends AbstractSkeleton> entityType, Level level) {
         super(entityType, level);
@@ -90,24 +78,6 @@ public class GuardsmanEntity extends AbstractSkeleton implements GeoEntity {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(RETALIATION, false);
-        this.entityData.define(HEALING, false);
-    }
-
-    private boolean getRetaliation() {
-        return this.entityData.get(RETALIATION);
-    }
-
-    private void setRetaliation(boolean flag) {
-        this.entityData.set(RETALIATION, flag);
-    }
-
-    private boolean isHealing() {
-        return this.entityData.get(HEALING);
-    }
-
-    private void setHealing(boolean flag) {
-        this.entityData.set(HEALING, flag);
     }
 
     @Override
@@ -228,56 +198,35 @@ public class GuardsmanEntity extends AbstractSkeleton implements GeoEntity {
                     10,
                     0.6, 0.6, 0.6, 0.0);
 
-            setHealing(true);
-            healingStart = level().getGameTime();
+            EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> this.heal(2.0f));
 
             doHurt = false;
         }
 
         if (!(source.getEntity() instanceof Player player && player.isCreative())) {
-            setRetaliation(true);
-            retaliationStart = level().getGameTime();
+            EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> {
+                level().playSound(null, BlockPos.containing(this.position()), SoundEvents.CROSSBOW_SHOOT,
+                        SoundSource.HOSTILE, 3.0F, 1.0F);
+
+                if (getTarget() != null) {
+                    for (int i = 0; i < 10; i++) {
+                        Arrow arrow = new Arrow(level(), this);
+                        arrow.setPos(getX(), getEyeY() - 0.1, getZ());
+                        arrow.shoot(
+                                getTarget().getX() - this.getX(), getTarget().getEyeY() - this.getEyeY(),
+                                getTarget().getZ() - this.getZ(),
+                                Mth.randomBetween(getRandom(), 1.0f, 1.6f),
+                                Mth.randomBetween(getRandom(), 1.0f, 50.0f));
+                        level().addFreshEntity(arrow);
+
+                    }
+                }
+            });
         }
 
         if (!isDeadOrDying()) triggerAnim("Attack", "dodge");
 
         return doHurt && super.hurt(source, amount);
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (level().isClientSide()) return;
-        if (!this.isAlive()) return;
-
-        if (getRetaliation() && level().getGameTime() >= retaliationStart + RETALIATION_DELAY) {
-            level().playSound(null, BlockPos.containing(this.position()), SoundEvents.CROSSBOW_SHOOT,
-                    SoundSource.HOSTILE, 3.0F, 1.0F);
-
-            if (getTarget() != null) {
-                for (int i = 0; i < 10; i++) {
-                    Arrow arrow = new Arrow(level(), this);
-                    arrow.setPos(getX(), getEyeY() - 0.1, getZ());
-                    arrow.shoot(
-                            getTarget().getX() - this.getX(), getTarget().getEyeY() - this.getEyeY(),
-                            getTarget().getZ() - this.getZ(),
-                            Mth.randomBetween(getRandom(), 1.0f, 1.6f),
-                            Mth.randomBetween(getRandom(), 1.0f, 50.0f));
-                    level().addFreshEntity(arrow);
-
-                }
-            }
-
-            setRetaliation(false);
-            retaliationStart = 0;
-        }
-
-        if (isHealing() && level().getGameTime() >= healingStart + HEALING_DELAY) {
-            this.heal(2.0f);
-
-            setHealing(false);
-            healingStart = 0;
-        }
     }
 
     @Override
