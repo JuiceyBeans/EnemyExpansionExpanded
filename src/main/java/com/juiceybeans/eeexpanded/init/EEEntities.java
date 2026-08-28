@@ -49,6 +49,10 @@ public class EEEntities {
             EntityType.Builder.of(KelpieEntity::new, MobCategory.WATER_CREATURE)
                     .setShouldReceiveVelocityUpdates(true)
                     .sized(1.95F, 2.45F));
+    public static final DeferredObject<EntityType<PropellerEntity>> PROPELLER = entity("propeller",
+            EntityType.Builder.of(PropellerEntity::new, MobCategory.MONSTER)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .sized(0.6F, 1.5F));
 
     // projectiles
     public static final DeferredObject<EntityType<GallantSwingsEntity>> GALLANT_SWINGS = entity("gallant_swings",
@@ -71,6 +75,7 @@ public class EEEntities {
         registerMobSpawn(EEEntities.EYESTALKER.get());
         registerMobSpawn(EEEntities.DRAGONFLY.get());
         registerMobSpawn(EEEntities.GUARDSMAN.get());
+        registerMobSpawn(EEEntities.PROPELLER.get());
         registerAquaticMobSpawn(EEEntities.KELPIE.get());
     }
 
@@ -91,6 +96,7 @@ public class EEEntities {
         consumer.accept(DRAGONFLY.get(), DragonflyEntity.createAttributes().build());
         consumer.accept(GUARDSMAN.get(), GuardsmanEntity.createAttributes().build());
         consumer.accept(KELPIE.get(), KelpieEntity.createAttributes().build());
+        consumer.accept(PROPELLER.get(), PropellerEntity.createAttributes().build());
     }
 
     public static Map<String, DeferredObject<EntityType<? extends Entity>>> getEntityTypes() {
