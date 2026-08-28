@@ -26,11 +26,11 @@ public class KelpieTongueWrapOverlay {
         int screenWidth = event.getWindow().getGuiScaledWidth();
         int screenHeight = event.getWindow().getGuiScaledHeight();
 
-         guiGraphics.blit(
-         EEExpanded.id("textures/gui/kelpie_tongue_wrap.png"),
-         0, 0,
-         0, 0,
-         screenWidth, screenHeight,
-         screenWidth, screenHeight);
+        guiGraphics.blit(
+                EEExpanded.id("textures/gui/kelpie_tongue_wrap.png"),
+                0, 0,
+                0, 0,
+                screenWidth, screenHeight,
+                screenWidth, screenHeight);
     }
 }
