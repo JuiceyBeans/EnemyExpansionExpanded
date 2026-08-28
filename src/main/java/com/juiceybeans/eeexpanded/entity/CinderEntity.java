@@ -239,7 +239,7 @@ public class CinderEntity extends Monster implements GeoEntity {
 
         if (level().getBlockState(new BlockPos(this.getBlockX(), this.getBlockY() - 1, this.getBlockZ()))
                 .is(Blocks.LAVA)) {
-            if (getRandom().nextInt() > 0.5D) this.setDeltaMovement(new Vec3(-0.6D, 3.0D, -0.6D));
+            if (getRandom().nextDouble() > 0.5D) this.setDeltaMovement(new Vec3(-0.6D, 3.0D, -0.6D));
             else this.setDeltaMovement(new Vec3(0.6D, 3.0D, 0.6D));
         }
 
