@@ -35,6 +35,12 @@ public class EEEItems {
     public static final DeferredObject<Item> GUARDSMAN_SPAWN_EGG = spawnEgg("guardsman_spawn_egg",
             EEEntities.GUARDSMAN.get(),
             2894893, 9301753);
+    public static final DeferredObject<Item> KELPIE_SPAWN_EGG = spawnEgg("kelpie_spawn_egg",
+            EEEntities.KELPIE.get(),
+            11899790, 14259169);
+    public static final DeferredObject<Item> PROPELLER_SPAWN_EGG = spawnEgg("propeller_spawn_egg",
+            EEEntities.PROPELLER.get(),
+            3640234, 6052694);
 
     public static void register(RegisterFunction<Item> function) {
         items.forEach(((id, item) -> function.register(BuiltInRegistries.ITEM, EEExpanded.id(id), item.get())));
