@@ -299,7 +299,6 @@
 			}
 		},
 		"attack": {
-			"loop": true,
 			"animation_length": 8,
 			"bones": {
 				"all": {

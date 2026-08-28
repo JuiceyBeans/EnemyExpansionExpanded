@@ -275,7 +275,6 @@
 			}
 		},
 		"attack": {
-			"loop": true,
 			"animation_length": 1.25,
 			"bones": {
 				"head": {
@@ -597,7 +596,6 @@
 			}
 		},
 		"shielding": {
-			"loop": true,
 			"animation_length": 1.25,
 			"bones": {
 				"head": {
@@ -912,7 +910,6 @@
 			}
 		},
 		"roll": {
-			"loop": true,
 			"animation_length": 0.5,
 			"bones": {
 				"torso": {
@@ -1171,7 +1168,6 @@
 			}
 		},
 		"oldidle": {
-			"loop": true,
 			"animation_length": 8,
 			"bones": {
 				"torso": {
