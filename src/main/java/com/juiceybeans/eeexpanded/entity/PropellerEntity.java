@@ -160,7 +160,7 @@ public class PropellerEntity extends AbstractSkeleton implements GeoEntity {
         if (source.getDirectEntity() instanceof LivingEntity) {
             triggerAnim("Hurt", "hurt");
 
-            if (isDeadOrDying()) {
+            if (!isDeadOrDying()) {
                 if (level().getBlockState(new BlockPos(this.getBlockX(), this.getBlockY() + 1, this.getBlockZ()))
                         .is(Blocks.AIR)) {
                     setDeltaMovement(0.0, 0.2, 0.0);
