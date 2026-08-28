@@ -133,37 +133,38 @@ public class PropellerEntity extends Skeleton implements GeoEntity {
 
         if (source == this.damageSources().fall()) return false;
         if (source == this.damageSources().lightningBolt()) return false;
-        if (!(source.getDirectEntity() instanceof LivingEntity)) return false;
 
-        triggerAnim("Hurt", "hurt");
+        if (source.getDirectEntity() instanceof LivingEntity) {
+            triggerAnim("Hurt", "hurt");
 
-        if (isDeadOrDying()) {
-            if (level().getBlockState(new BlockPos(this.getBlockX(), this.getBlockY() + 1, this.getBlockZ()))
-                    .is(Blocks.AIR)) {
-                setDeltaMovement(0.0, 0.2, 0.0);
+            if (isDeadOrDying()) {
+                if (level().getBlockState(new BlockPos(this.getBlockX(), this.getBlockY() + 1, this.getBlockZ()))
+                        .is(Blocks.AIR)) {
+                    setDeltaMovement(0.0, 0.2, 0.0);
 
-                EEExpanded.scheduleTask((ServerLevel) level(), 2, () -> {
-                    setDeltaMovement(0.0, 1.2, 0.0);
-                    addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, false));
+                    EEExpanded.scheduleTask((ServerLevel) level(), 2, () -> {
+                        setDeltaMovement(0.0, 1.2, 0.0);
+                        addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0, false, false));
 
-                    EEExpanded.scheduleTask((ServerLevel) level(), 4, () -> setDeltaMovement(
-                            Mth.nextDouble(getRandom(), -1.0, 1.5),
-                            Mth.nextDouble(getRandom(), 0.3, 2.0),
-                            Mth.nextDouble(getRandom(), -1.0, 1.5)));
-                });
+                        EEExpanded.scheduleTask((ServerLevel) level(), 4, () -> setDeltaMovement(
+                                Mth.nextDouble(getRandom(), -1.0, 1.5),
+                                Mth.nextDouble(getRandom(), 0.3, 2.0),
+                                Mth.nextDouble(getRandom(), -1.0, 1.5)));
+                    });
 
-                if (getWeathered() && getRandom().nextDouble() < 0.25 && getHealth() <= 8.0F) {
-                    setWeathered(true);
-                    addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 600, 2, false, false));
+                    if (getWeathered() && getRandom().nextDouble() < 0.25 && getHealth() <= 8.0F) {
+                        setWeathered(true);
+                        addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 600, 2, false, false));
+                    }
                 }
-            }
 
-            if (source.getEntity() instanceof Arrow) {
-                kill();
-                ((ServerLevel) level()).sendParticles(ParticleTypes.EXPLOSION, getX(), getY(), getZ(), 30, 0.6, 0.6,
-                        0.6,
-                        0.0);
-                // todo grant precision strike advancement
+                if (source.getEntity() instanceof Arrow) {
+                    kill();
+                    ((ServerLevel) level()).sendParticles(ParticleTypes.EXPLOSION, getX(), getY(), getZ(), 30, 0.6, 0.6,
+                            0.6,
+                            0.0);
+                    // todo grant precision strike advancement
+                }
             }
         }
 
@@ -172,7 +173,7 @@ public class PropellerEntity extends Skeleton implements GeoEntity {
 
     @Override
     protected boolean isSunBurnTick() {
-        return super.isSunBurnTick();
+        return false;
     }
 
     @Override
