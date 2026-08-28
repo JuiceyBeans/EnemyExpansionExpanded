@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:charcoal"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "eeexpanded:entities/propeller"
+}
