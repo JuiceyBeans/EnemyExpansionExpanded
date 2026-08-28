@@ -5,29 +5,19 @@ import com.juiceybeans.eeexpanded.entity.projectile.GallantSwingsEntity;
 import com.juiceybeans.eeexpanded.init.EEESoundEvents;
 import com.juiceybeans.eeexpanded.init.EEEntities;
 
-import com.juiceybeans.eeexpanded.util.AnimationUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.TimeUtil;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.NeutralMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -35,13 +25,12 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.NetworkHooks;
 
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +43,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.UUID;
+import java.util.List;
 
 public class GallantEntity extends Monster implements GeoEntity {
 
@@ -65,12 +54,8 @@ public class GallantEntity extends Monster implements GeoEntity {
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-    private static final EntityDataAccessor<Integer> HURT_STAGE = SynchedEntityData.defineId(GallantEntity.class,
-            EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> ATTACK_STAGE = SynchedEntityData.defineId(GallantEntity.class,
-            EntityDataSerializers.INT);
-
     private boolean isAttackerInWater;
+    private boolean isAttacking;
 
     public GallantEntity(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
@@ -95,24 +80,6 @@ public class GallantEntity extends Monster implements GeoEntity {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(HURT_STAGE, 0);
-        this.entityData.define(ATTACK_STAGE, 0);
-    }
-
-    private int getHurtStage() {
-        return this.entityData.get(HURT_STAGE);
-    }
-
-    private void setHurtStage(int stage) {
-        this.entityData.set(HURT_STAGE, stage);
-    }
-
-    private int getAttackStage() {
-        return this.entityData.get(ATTACK_STAGE);
-    }
-
-    private void setAttackStage(int stage) {
-        this.entityData.set(ATTACK_STAGE, stage);
     }
 
     @Override
@@ -158,21 +125,61 @@ public class GallantEntity extends Monster implements GeoEntity {
 
     @Override
     public boolean doHurtTarget(Entity entity) {
+        if (isAttacking) return false;
+        isAttacking = true;
+
         triggerAnim("Attack", "attack");
 
         EEExpanded.scheduleTask((ServerLevel) level(), 12, () -> {
-            swingBurstAttack(6.0F, 180.0F, 1.0F);
+            if (isDeadOrDying()) {
+                isAttacking = false;
+                return;
+            }
+
+            super.doHurtTarget(entity);
+
+            aoeSweep(this);
+
+            // swingBurstAttack(6.0F, 180.0F, 1.0F);
             this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE,
                     1.0F, 0.0F);
 
             EEExpanded.scheduleTask((ServerLevel) level(), 8, () -> {
-                swingBurstAttack(6.0F, 180.0F, 1.0F);
+                if (isDeadOrDying()) {
+                    isAttacking = false;
+                    return;
+                }
+
+                aoeSweep(this);
+                // swingBurstAttack(6.0F, 180.0F, 1.0F);
                 this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE,
                         1.0F, 0.0F);
+
+                isAttacking = false;
             });
         });
 
-        return super.doHurtTarget(entity);
+        return false;
+    }
+
+    private void aoeSweep(Entity entity, double radius) {
+        AABB area = entity.getBoundingBox().inflate(radius);
+        List<LivingEntity> nearby = this.level().getEntitiesOfClass(
+                LivingEntity.class,
+                area,
+                e -> e != this && e.isAlive() && !e.isAlliedTo(this));
+
+        // aoe
+        for (LivingEntity victim : nearby) {
+            if (victim == entity) continue;
+            if (!this.hasLineOfSight(victim)) continue;
+
+            victim.hurt(this.damageSources().mobAttack(this), (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE));
+        }
+    }
+
+    private void aoeSweep(Entity entity) {
+        aoeSweep(entity, 3.0D);
     }
 
     @Override
@@ -188,10 +195,15 @@ public class GallantEntity extends Monster implements GeoEntity {
         if (source == this.damageSources().cactus()) return false;
         if (source == this.damageSources().wither()) return false;
         if (source.type() == this.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(DamageTypes.WITHER_SKULL)) return false; // if there's a better way to do this LET ME KNOW!!
+                .getOrThrow(DamageTypes.WITHER_SKULL))
+            return false; // if there's a better way to do this LET ME KNOW!!
 
         // raise shield
-        if ((source.getEntity() instanceof Player || source.getEntity() instanceof Arrow) && level().random.nextDouble() <= 0.75D) {
+        if ((source.getDirectEntity() instanceof LivingEntity) && level().random.nextDouble() <= 0.75D) {
+            if (isAttacking) {
+                return super.hurt(source, amount);
+            }
+
             if (source.getEntity() instanceof Player player && player.isCreative()) return false;
 
             this.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 20, 2, false, false));
@@ -202,15 +214,29 @@ public class GallantEntity extends Monster implements GeoEntity {
             triggerAnim("Attack", "shielding");
 
             EEExpanded.scheduleTask((ServerLevel) level(), 16, () -> {
+                if (isDeadOrDying()) return;
+
                 this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 12, 2, false, false));
                 this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 30, 1, false, false));
 
                 EEExpanded.scheduleTask((ServerLevel) level(), 6, () -> {
-                    var damage = isAttackerInWater ? 8.0F : 14.0F;
-                    var speed = isAttackerInWater ? 0.6F : 1.0F;
-                    var spreadRange = isAttackerInWater ? 100.0F : 180.0F;
+                    if (isDeadOrDying()) return;
 
-                    swingBurstAttack(damage, spreadRange, speed);
+                    /*
+                     * var damage = isAttackerInWater ? 8.0F : 14.0F;
+                     * var speed = isAttackerInWater ? 0.6F : 1.0F;
+                     * var spreadRange = isAttackerInWater ? 100.0F : 180.0F;
+                     * 
+                     * swingBurstAttack(damage, spreadRange, speed);
+                     */
+
+                    AABB area = getBoundingBox().inflate(3);
+                    List<LivingEntity> nearby = this.level().getEntitiesOfClass(
+                            LivingEntity.class,
+                            area,
+                            e -> e != this && e.isAlive() && !e.isAlliedTo(this));
+
+                    if (!nearby.isEmpty()) aoeSweep(this, 1.5D);
 
                     isAttackerInWater = false;
                 });
