@@ -185,46 +185,48 @@ public class GuardsmanEntity extends AbstractSkeleton implements GeoEntity {
         if (source.getEntity() == this) return false;
 
         var doHurt = true;
-        // dodge player and self arrows, but not other guardsmen
-        if (source.getDirectEntity() instanceof AbstractArrow arrow &&
-                !(source.getEntity() instanceof GuardsmanEntity)) {
-            arrow.discard();
+        if (source.getDirectEntity() instanceof LivingEntity) {
+            // dodge player and self arrows, but not other guardsmen
+            if (source.getDirectEntity() instanceof AbstractArrow arrow &&
+                    !(source.getEntity() instanceof GuardsmanEntity)) {
+                arrow.discard();
 
-            ((ServerLevel) level()).sendParticles(
-                    ParticleTypes.LARGE_SMOKE,
-                    this.getX(),
-                    this.getEyeY(),
-                    this.getZ(),
-                    10,
-                    0.6, 0.6, 0.6, 0.0);
+                ((ServerLevel) level()).sendParticles(
+                        ParticleTypes.LARGE_SMOKE,
+                        this.getX(),
+                        this.getEyeY(),
+                        this.getZ(),
+                        10,
+                        0.6, 0.6, 0.6, 0.0);
 
-            EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> this.heal(2.0f));
+                EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> this.heal(2.0f));
 
-            doHurt = false;
-        }
+                doHurt = false;
+            }
 
-        if (!(source.getEntity() instanceof Player player && player.isCreative())) {
-            EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> {
-                level().playSound(null, BlockPos.containing(this.position()), SoundEvents.CROSSBOW_SHOOT,
-                        SoundSource.HOSTILE, 3.0F, 1.0F);
+            if (!(source.getEntity() instanceof Player player && player.isCreative())) {
+                EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> {
+                    level().playSound(null, BlockPos.containing(this.position()), SoundEvents.CROSSBOW_SHOOT,
+                            SoundSource.HOSTILE, 3.0F, 1.0F);
 
-                if (getTarget() != null) {
-                    for (int i = 0; i < 10; i++) {
-                        Arrow arrow = new Arrow(level(), this);
-                        arrow.setPos(getX(), getEyeY() - 0.1, getZ());
-                        arrow.shoot(
-                                getTarget().getX() - this.getX(), getTarget().getEyeY() - this.getEyeY(),
-                                getTarget().getZ() - this.getZ(),
-                                Mth.randomBetween(getRandom(), 1.0f, 1.6f),
-                                Mth.randomBetween(getRandom(), 1.0f, 50.0f));
-                        level().addFreshEntity(arrow);
+                    if (getTarget() != null) {
+                        for (int i = 0; i < 10; i++) {
+                            Arrow arrow = new Arrow(level(), this);
+                            arrow.setPos(getX(), getEyeY() - 0.1, getZ());
+                            arrow.shoot(
+                                    getTarget().getX() - this.getX(), getTarget().getEyeY() - this.getEyeY(),
+                                    getTarget().getZ() - this.getZ(),
+                                    Mth.randomBetween(getRandom(), 1.0f, 1.6f),
+                                    Mth.randomBetween(getRandom(), 1.0f, 50.0f));
+                            level().addFreshEntity(arrow);
 
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        if (!isDeadOrDying()) triggerAnim("Attack", "dodge");
+            if (!isDeadOrDying()) triggerAnim("Attack", "dodge");
+        }
 
         return doHurt && super.hurt(source, amount);
     }
