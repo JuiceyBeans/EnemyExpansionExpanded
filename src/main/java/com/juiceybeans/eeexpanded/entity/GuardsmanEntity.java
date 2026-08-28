@@ -185,27 +185,31 @@ public class GuardsmanEntity extends AbstractSkeleton implements GeoEntity {
         if (source.getEntity() == this) return false;
 
         var doHurt = true;
+
+        if (source.getDirectEntity() instanceof AbstractArrow arrow &&
+                !(source.getEntity() instanceof GuardsmanEntity)) { // todo make this chanced?
+            arrow.discard();
+
+            ((ServerLevel) level()).sendParticles(
+                    ParticleTypes.LARGE_SMOKE,
+                    this.getX(),
+                    this.getEyeY(),
+                    this.getZ(),
+                    10,
+                    0.6, 0.6, 0.6, 0.0);
+
+            EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> this.heal(2.0f));
+
+            doHurt = false;
+        }
+
         if (source.getDirectEntity() instanceof LivingEntity) {
             // dodge player and self arrows, but not other guardsmen
-            if (source.getDirectEntity() instanceof AbstractArrow arrow &&
-                    !(source.getEntity() instanceof GuardsmanEntity)) {
-                arrow.discard();
-
-                ((ServerLevel) level()).sendParticles(
-                        ParticleTypes.LARGE_SMOKE,
-                        this.getX(),
-                        this.getEyeY(),
-                        this.getZ(),
-                        10,
-                        0.6, 0.6, 0.6, 0.0);
-
-                EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> this.heal(2.0f));
-
-                doHurt = false;
-            }
 
             if (!(source.getEntity() instanceof Player player && player.isCreative())) {
                 EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> {
+                    if (this.isDeadOrDying()) return;
+
                     level().playSound(null, BlockPos.containing(this.position()), SoundEvents.CROSSBOW_SHOOT,
                             SoundSource.HOSTILE, 3.0F, 1.0F);
 
