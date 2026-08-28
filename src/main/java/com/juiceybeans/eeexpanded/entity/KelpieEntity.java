@@ -146,8 +146,16 @@ public class KelpieEntity extends PathfinderMob implements GeoEntity {
     }
 
     @Override
+    protected void positionRider(Entity passenger, MoveFunction callback) {
+        if (this.hasPassenger(passenger)) {
+            double d0 = this.getY() + this.getPassengersRidingOffset() + passenger.getMyRidingOffset();
+            callback.accept(passenger, this.getX() + 2, d0, this.getZ());
+        }
+    }
+
+    @Override
     public double getPassengersRidingOffset() {
-        return super.getPassengersRidingOffset() + -0.4D;
+        return super.getPassengersRidingOffset() - 1.4D;
     }
 
     @Override
@@ -179,6 +187,8 @@ public class KelpieEntity extends PathfinderMob implements GeoEntity {
             if (sourceEntity instanceof Player player) {
                 setDeltaMovement(new Vec3(player.getLookAngle().x * 2, -0.5, player.getLookAngle().z * 2));
                 EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> {
+                    if (isDeadOrDying()) return;
+
                     var dx = 4.0;
                     if (getRandom().nextDouble() < 0.5) dx = -4.0;
                     setDeltaMovement(
@@ -203,26 +213,31 @@ public class KelpieEntity extends PathfinderMob implements GeoEntity {
                         EEESoundEvents.KELPIE_REINFORCEMENT, SoundSource.HOSTILE, 1.0F, 1.0F);
 
                 EEExpanded.scheduleTask((ServerLevel) level(), 30, () -> {
+                    if (this.isDeadOrDying()) return;
                     if (getTarget() == null) return;
 
                     for (int i = 0; i < Mth.nextInt(getRandom(), 1, 2); i++) {
                         Drowned drowned = new Drowned(EntityType.DROWNED, level());
-                        drowned.moveTo(
+                        var spawnPos = new BlockPos(
                                 (int) (getTarget().getX() - Mth.nextDouble(getRandom(), -8.0, 8.0)),
                                 (int) (getTarget().getY() - 1.0),
-                                (int) (getTarget().getZ() - Mth.nextDouble(getRandom(), -8.0, 8.0)),
-                                getRandom().nextFloat() * 360.0F, 0.0F);
-                        drowned.setHealth(10);
-                        drowned.addEffect(
-                                new MobEffectInstance(MobEffects.CONDUIT_POWER, Mth.nextInt(getRandom(), 150, 250), 0,
-                                        false, true));
-                        drowned.finalizeSpawn((ServerLevelAccessor) level(),
-                                level().getCurrentDifficultyAt(drowned.blockPosition()), MobSpawnType.MOB_SUMMONED,
-                                null, null);
-                        level().addFreshEntity(drowned);
+                                (int) (getTarget().getZ() - Mth.nextDouble(getRandom(), -8.0, 8.0)));
 
-                        level().playSound(null, drowned.getX(), drowned.getY(), drowned.getZ(),
-                                SoundEvents.ZOMBIE_CONVERTED_TO_DROWNED, SoundSource.HOSTILE, 1.0F, 1.0F);
+                        drowned.moveTo(spawnPos, getRandom().nextFloat() * 360.0F, 0.0F);
+                        if (level().noCollision(drowned)) {
+                            drowned.setHealth(10);
+                            drowned.addEffect(
+                                    new MobEffectInstance(MobEffects.CONDUIT_POWER, Mth.nextInt(getRandom(), 150, 250),
+                                            0,
+                                            false, true));
+                            drowned.finalizeSpawn((ServerLevelAccessor) level(),
+                                    level().getCurrentDifficultyAt(drowned.blockPosition()), MobSpawnType.MOB_SUMMONED,
+                                    null, null);
+                            level().addFreshEntity(drowned);
+
+                            level().playSound(null, drowned.getX(), drowned.getY(), drowned.getZ(),
+                                    SoundEvents.ZOMBIE_CONVERTED_TO_DROWNED, SoundSource.HOSTILE, 1.0F, 1.0F);
+                        } else drowned.discard();
                     }
                 });
             }
@@ -254,6 +269,8 @@ public class KelpieEntity extends PathfinderMob implements GeoEntity {
                 addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 162, 0, false, false));
 
                 EEExpanded.scheduleTask((ServerLevel) level(), 6, () -> {
+                    if (isDeadOrDying()) return;
+
                     level().playSound(null, getX(), getY(), getZ(),
                             SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 1.0F, 1.0F);
                     // todo this was originally a timer so remake it
@@ -271,6 +288,8 @@ public class KelpieEntity extends PathfinderMob implements GeoEntity {
 
                         // delay for animation
                         EEExpanded.scheduleTask((ServerLevel) level(), 20, () -> {
+                            if (isDeadOrDying()) return;
+
                             player.startRiding(this);
                             EEExpanded.scheduleTask((ServerLevel) level(), 4 * 20, () -> {
                                 if (player.getVehicle() == this) player.stopRiding();
@@ -328,7 +347,7 @@ public class KelpieEntity extends PathfinderMob implements GeoEntity {
             return state.setAndContinue(IDLE);
         }));
 
-        controllers.add(new AnimationController<>(this, "Attack", 4, state -> PlayState.CONTINUE)
+        controllers.add(new AnimationController<>(this, "Attack", 4, state -> PlayState.STOP)
                 .triggerableAnim("attack", ATTACK));
     }
 
