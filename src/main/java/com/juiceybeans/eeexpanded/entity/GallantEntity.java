@@ -54,7 +54,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.UUID;
 
-public class GallantEntity extends Monster implements GeoEntity, NeutralMob {
+public class GallantEntity extends Monster implements GeoEntity {
 
     private static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
@@ -77,10 +77,6 @@ public class GallantEntity extends Monster implements GeoEntity, NeutralMob {
     private static final long SECOND_WAVE_DELAY = 8;
 
     private boolean isAttackerInWater;
-
-    private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
-    private int remainingPersisterAngerTime;
-    private @Nullable UUID persistentAngerTarget;
 
     public GallantEntity(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
@@ -132,16 +128,8 @@ public class GallantEntity extends Monster implements GeoEntity, NeutralMob {
         this.targetSelector.addGoal(2, new HurtByTargetGoal(this).setAlertOthers());
         this.goalSelector.addGoal(3, new RandomStrollGoal(this, 0.8D));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, false, false) {
-
-            @Override
-            public boolean canUse() {
-                Level world = GallantEntity.this.level();
-                return super.canUse() && world.isNight();
-            }
-        });
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Villager.class, false, false));
-        this.targetSelector.addGoal(3, new ResetUniversalAngerTargetGoal<>(this, false));
     }
 
     @Override
@@ -301,51 +289,6 @@ public class GallantEntity extends Monster implements GeoEntity, NeutralMob {
 
         this.level().playSound(null, this.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.HOSTILE, 1.0F,
                 0.0F);
-    }
-
-    @Override
-    public void aiStep() {
-        if (!this.level().isClientSide) {
-            this.updatePersistentAnger((ServerLevel) this.level(), true);
-        }
-        super.aiStep();
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
-        addPersistentAngerSaveData(compound);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        readPersistentAngerSaveData(this.level(), compound);
-    }
-
-    @Override
-    public int getRemainingPersistentAngerTime() {
-        return this.remainingPersisterAngerTime;
-    }
-
-    @Override
-    public void setRemainingPersistentAngerTime(int remainingPersistentAngerTime) {
-        this.remainingPersisterAngerTime = remainingPersistentAngerTime;
-    }
-
-    @Override
-    public @Nullable UUID getPersistentAngerTarget() {
-        return this.persistentAngerTarget;
-    }
-
-    @Override
-    public void setPersistentAngerTarget(@Nullable UUID persistentAngerTarget) {
-        this.persistentAngerTarget = persistentAngerTarget;
-    }
-
-    @Override
-    public void startPersistentAngerTimer() {
-        this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
     }
 
     @Override
