@@ -19,13 +19,17 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -40,7 +44,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class PropellerEntity extends Skeleton implements GeoEntity {
+public class PropellerEntity extends AbstractSkeleton implements GeoEntity {
 
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation WALK = RawAnimation.begin().thenLoop("walk");
@@ -51,8 +55,9 @@ public class PropellerEntity extends Skeleton implements GeoEntity {
     private static final EntityDataAccessor<Boolean> WEATHERED = SynchedEntityData.defineId(PropellerEntity.class,
             EntityDataSerializers.BOOLEAN);
 
-    public PropellerEntity(EntityType<? extends Skeleton> entityType, Level level) {
+    public PropellerEntity(EntityType<? extends AbstractSkeleton> entityType, Level level) {
         super(entityType, level);
+        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
         xpReward = 6;
     }
 
@@ -86,8 +91,12 @@ public class PropellerEntity extends Skeleton implements GeoEntity {
 
     @Override
     protected void registerGoals() {
-        super.registerGoals();
         this.goalSelector.addGoal(1, new AvoidEntityGoal<>(this, Player.class, 6.0F, 1.2, 1.4));
+        this.goalSelector.addGoal(2, new WaterAvoidingRandomStrollGoal(this, 1.0F));
+        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
     @Override
@@ -113,6 +122,21 @@ public class PropellerEntity extends Skeleton implements GeoEntity {
     @Override
     protected SoundEvent getDeathSound() {
         return SoundEvents.ITEM_BREAK;
+    }
+
+    @Override
+    public void performRangedAttack(LivingEntity target, float distanceFactor) {
+        if (!level().isClientSide) {
+            ((ServerLevel) level()).sendParticles(
+                    ParticleTypes.END_ROD,
+                    this.getX(),
+                    this.getEyeY(),
+                    this.getZ(),
+                    10,
+                    0.6, 0.6, 0.6, 0.0);
+        }
+
+        super.performRangedAttack(target, distanceFactor);
     }
 
     @Override
@@ -202,12 +226,11 @@ public class PropellerEntity extends Skeleton implements GeoEntity {
         super.tick();
         if (!isAlive() || level().isClientSide()) return;
 
-        if (isInWaterOrRain() && !hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
+        if (!getWeathered() && isInWaterOrRain() && !hasEffect(MobEffects.MOVEMENT_SLOWDOWN)) {
             setWeathered(true);
+            addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 2, false, false));
             ((ServerLevel) level()).sendParticles(ParticleTypes.SMOKE, getX(), getY(), getZ(), 15, 0.3, 0.3, 0.3,
                     0.3);
-        } else {
-            addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 2, false, false));
         }
     }
 
@@ -218,7 +241,7 @@ public class PropellerEntity extends Skeleton implements GeoEntity {
             return state.setAndContinue(IDLE);
         }));
 
-        controllers.add(new AnimationController<>(this, "Hurt", 4, state -> PlayState.CONTINUE)
+        controllers.add(new AnimationController<>(this, "Hurt", 4, state -> PlayState.STOP)
                 .triggerableAnim("hurt", HURT));
     }
 
