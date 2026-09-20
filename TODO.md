@@ -3,8 +3,8 @@
 - [x] Eyestalker
 - [x] Gallant
 - [x] Guardsman
-- [ ] Kelpies
-- [ ] Propeller
+- [x] Kelpies
+- [x] Propeller
 
 - [x] Test mob spawns
 - [ ] Anger persistence
